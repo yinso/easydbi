@@ -1,0 +1,29 @@
+{
+  "author": "YC <yinso.chen@gmail.com>",
+  "name": "dbi",
+  "description": "A simple database interface for NodeJS",
+  "version": "0.3.2",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yinso/dbi.git"
+  },
+  "main": "./lib/main",
+  "engines": {
+    "node": ">= 0.8.4"
+  },
+  "scripts": {
+    "test": "make test",
+    "prepublish": "make"
+  },
+  "dependencies": {
+    "coffee-script": "=1.8.0",
+    "underscore": "=1.7.0",
+    "node-uuid": "=1.4.1",
+    "sqlite3": "=3.0.2",
+    "async": "=0.9.0"
+  },
+  "devDependencies": {
+    "testlet": ">= 0.2.0",
+    "coffee-bean": "=0.1.0"
+  }
+}

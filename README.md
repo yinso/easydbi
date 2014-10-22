@@ -1,34 +1,36 @@
-# DBConnect - A Simple Database Interface for NodeJS
+# EasyDBI - A Simple Database Interface for NodeJS
 
-DBConnect is a simple database interface for NodeJS.
+EasyDBI is a simple database interface for NodeJS. The precessor, `DBConnect`, turns out to still be too complex, so this is even more simplified.
 
-By default DBConnect comes with MongoDB and Postgresql interface.
+By default EasyDBI comes with Sqlite3. 
 
 # Installation
 
-    npm install dbconnect
+    npm install easydbi
 
 # Usage
 
-    var DBConnect = require('dbconnect');
-    DBConnect.setup({
-        name: 'test',
-        type: 'mongo',
-        module: <path_to_require_module>,
-        args...
+    var DBI = require('easydbi'); // already comes with sqlite3
+    require('easydbi-postgres'); // for postgres
+    
+    // "prepare" queries. 
+    DBI.prepare('sqlite', 'createTest', {exec: 'create table test_t (c1 int, c2 int)'});
+    
+    // load a whole module of prepared queries. => sync operation. 
+    DBI.loadPrepared('sqlite', require('some-prepared-module'));
+    
+    
+    // make a connection 
+    var conn = DBI.make('sqlite', {memory: true}); // creates a sqlite connection 
+    
+    conn.connect(function (err, conn) {
+      if (err) {
+        return err;
+      } else {
+        conn.createTest({}, function(... ) { ... })
+      }
     });
-
-    var conn = DBConnect.make('test');
-
-    conn.open(function(err) {
-        // handle processing here...
-
-        // query the database.
-        conn.query(..., cb);
-
-        // to close.
-        conn.close(cb);
-    });
+    
 
 ## Setup
 

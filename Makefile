@@ -7,8 +7,8 @@ JSONDIR=.
 COFFEE_SOURCES= $(wildcard $(VPATH)/*.coffee)
 COFFEE_OBJECTS=$(patsubst $(VPATH)/%.coffee, $(BUILDDIR)/%.js, $(COFFEE_SOURCES))
 
-BEAN_FILES=$(wildcard $(BEANDIR)/*.bean)
-JSON_FILES=$(patsubst $(BEANDIR)/%.bean, $(JSONDIR)/%.json, $(BEAN_FILES))
+BEAN_FILES=$(wildcard $(BEANDIR)/*.yml)
+JSON_FILES=$(patsubst $(BEANDIR)/%.yml, $(JSONDIR)/%.json, $(BEAN_FILES))
 
 CLIENT_JS_FILES = $(wildcard client/*.coffee)
 
@@ -20,7 +20,7 @@ build: node_modules objects
 .PHONY: objects
 objects: $(COFFEE_OBJECTS) $(JSON_FILES)
 
-$(JSONDIR)/%.json: $(BEANDIR)/%.bean
+$(JSONDIR)/%.json: $(BEANDIR)/%.yml
 	./node_modules/.bin/bean --source $<
 
 .PHONY: test

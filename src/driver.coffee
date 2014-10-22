@@ -1,8 +1,17 @@
+{ EventEmitter } = require 'events'
+
 
 # extremely easy 
-class Driver 
-  constructor: () ->
-  connect: (options, cb) ->
+class Driver extends EventEmitter
+  @id = 0
+  @pool = true
+  constructor: (@options) ->
+    @constructor.id++
+    @id = @constructor.id
+  connect: (cb) ->
+  isConnected: () -> false
+  driverName: () ->
+    @constructor.name
   query: (key, args, cb) -> # query will return results. 
   queryOne: (key, args, cb) ->
     @query key, args, (err, rows) ->
@@ -18,6 +27,10 @@ class Driver
         cb err
       else
         cb null 
+  begin: (cb) ->
+  commit: (cb) ->
+  rollback: (cb) ->
   disconnect: (cb) ->
+  close: (cb) -> # same as disconnect except in pool scenario.
 
 module.exports = Driver

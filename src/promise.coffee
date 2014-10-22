@@ -9,7 +9,18 @@ class Promise
     @error = console.error 
     @
   then: (proc) ->
-    @calls.push proc
+    if proc.length == 1
+      @calls.push (cb) ->
+        try 
+          proc cb 
+        catch e
+          cb e
+    else
+      @calls.push (res, cb) ->
+        try 
+          proc res, cb 
+        catch e
+          cb e
     @
   catch: (@error) ->
     @
@@ -24,17 +35,19 @@ class Promise
           else 
             interim = res 
             next null 
-      if interim != null and interim != undefined
-        #console.log 'helper-interim', call, interim
+      if call.length > 1 
         call interim, cb
       else
         #console.log 'helper-non-interim', call
         call cb
     async.eachSeries @calls, helper, (err) ->
-      if err 
-        self.error err 
-      else
-        lastCB()
+      try 
+        if err 
+          self.error err 
+        else
+          lastCB()
+      catch e
+        lastCB e
     @
 
 module.exports = Promise

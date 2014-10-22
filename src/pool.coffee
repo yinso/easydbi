@@ -1,90 +1,77 @@
-###
-  generic database pool. use this to wrap around the regular non-pooled db.
+Driver = require './driver'
 
-  pool = new Pool(inner, 100)
+{ EventEmitter } = require 'events'
+_ = require 'underscore'
 
-###
-
-DBConnect = require './dbconnect'
-{EventEmitter} = require 'events'
-
-class DBPool extends EventEmitter
-  constructor: (@inner, @maxSize = 20) ->
-    if not DBConnect.has @inner.name
-      DBConnect.setup @inner
-    @active = []
-    @free = []
-    @queue = []
-    @on 'release', @onRelease
-  acquire: (cb) ->
-    if @hasFree()
-      @acquireFree cb
-    else if @poolNotFull()
-      @acquireNew cb
-    else
-      @waitToAcquire cb
-  poolNotFull: () ->
-    (@active.length + @free.length) < @maxSize
-  acquireNew: (cb) ->
-    conn = DBConnect.make @inner.name
-    @active.push conn
-    conn.connect (err, res) =>
-      if err
-        @removeFromActive conn
-        cb err
-      else
-        cb null, conn
-  hasFree: () ->
-    @free.length > 0
-  acquireFree: (cb) ->
-    conn = @free.shift()
-    @active.push conn
-    cb null, conn
-  waitToAcquire: (cb) ->
-    @queue.push cb
-  removeFromActive: (conn) ->
-    index = @active.indexOf(conn)
-    if index >= 0
-      @active.splice index, 1
-    conn
-  release: (conn) ->
-    @removeFromActive conn
-    @free.push conn
-    @emit 'release'
-  onRelease: () =>
-    if @queue.length > 0
-      @acquireFree @queue.shift()
-
-class DBPoolProxy extends DBConnect
-  @pools: {}
-  @hasPool: (name) ->
-    if @pools.hasOwnProperty(name)
-      @pools[name]
-    else
-      undefined
-  @makePool: (name, inner, maxSize) ->
-    if @hasPool name
-      throw new Error("DBPool.duplicate: #{name}")
-    @pools[name] = new DBPool(inner, maxSize)
-    @pools[name]
-  constructor: (@args) ->
-    {name, inner, maxSize} = @args
-    @pool = @constructor.hasPool name
-    if not @pool
-      @pool = @makePool name, inner, maxSize
+class NoPool 
+  constructor: (@key, driver, @connOptions, @options) ->
+    self = @
+    @driver = class noPoolDriver extends driver
+      @id = 0
   connect: (cb) ->
-    @pool.acquire (err, res) =>
-      if err
-        cb err
+    conn = new @driver @connOptions
+    conn.connect cb 
+  prepare: (call, options) ->
+    proc = 
+      if options?.query 
+        (args, cb) ->
+          @query options.query, args, cb 
+      else if options?.exec
+        (args, cb) ->
+          @exec options.exec, args, cb 
+      else if options instanceof Function 
+        options
       else
-        @inner = res
-        cb null, @
-  query: (args...) ->
-    @inner.query args...
-  disconnect: (cb) ->
-    @pool.release @inner
-    cb null, @
+        throw {error: 'invalid_prepare_option', call: call, options: options}
+    @driver.prototype[call] = proc
 
-DBConnect.register 'pool', DBPoolProxy
+# we will have 
+class Pool extends EventEmitter
+  @NoPool = NoPool
+  @defaultOptions: 
+    min: 0 
+    max: 20
+  constructor: (@key, driver, @connOptions, @options) ->
+    @options = _.extend {}, @constructor.defaultOptions, @options or {}
+    self = @
+    @driver = class poolDriver extends driver
+      @id = 0
+      disconnect: (cb) ->
+        self.makeAvailable @
+    @total = [] # everything is managed here...
+    @avail = [] # we keep track of what's currently available.
+  connect: (cb) ->
+    #console.log 'Pool.connect', @options, @total.length, @avail.length
+    connectMe = (db) ->
+      if db.isConnected()
+        cb null, db
+      else
+        db.connect cb 
+    if @avail.length > 0 
+      db = @avail.shift()
+      connectMe db
+    else 
+      @once 'available', connectMe
+      if @total.length < @options.max
+        db = new @driver @connOptions 
+        @total.push db
+        @makeAvailable db
+  prepare: (call, options) ->
+    proc = 
+      if options?.query 
+        (args, cb) ->
+          @query options.query, args, cb 
+      else if options?.exec
+        (args, cb) ->
+          @exec options.exec, args, cb 
+      else if options instanceof Function 
+        options
+      else
+        throw {error: 'invalid_prepare_option', call: call, options: options}
+    @driver.prototype[call] = proc
+  makeAvailable: (db) ->
+    if not _.contains @avail, db
+      @avail.push db 
+    @emit 'available', db
 
-module.exports = DBPoolProxy
+module.exports = Pool

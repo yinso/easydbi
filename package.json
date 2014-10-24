@@ -2,7 +2,7 @@
   "author": "YC <yinso.chen@gmail.com>",
   "name": "easydbi",
   "description": "A simple database interface for NodeJS",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/yinso/easydbi.git"
@@ -20,10 +20,11 @@
     "underscore": "=1.7.0",
     "node-uuid": "=1.4.1",
     "sqlite3": "=3.0.2",
-    "async": "=0.9.0"
+    "async": "=0.9.0",
+    "loglet": ">=0.1.1"
   },
   "devDependencies": {
     "testlet": ">= 0.2.0",
-    "coffee-bean": "=0.3.0"
+    "coffee-bean": ">=0.3.0"
   }
 }

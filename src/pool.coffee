@@ -2,6 +2,7 @@ Driver = require './driver'
 
 { EventEmitter } = require 'events'
 _ = require 'underscore'
+loglet = require 'loglet'
 
 class NoPool 
   constructor: (@key, driver, @connOptions, @options) ->
@@ -41,7 +42,7 @@ class Pool extends EventEmitter
     @total = [] # everything is managed here...
     @avail = [] # we keep track of what's currently available.
   connect: (cb) ->
-    #console.log 'Pool.connect', @options, @total.length, @avail.length
+    loglet.debug 'Pool.connect', @options, @total.length, @avail.length
     connectMe = (db) ->
       if db.isConnected()
         cb null, db

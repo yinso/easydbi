@@ -2,7 +2,7 @@
 { EventEmitter } = require 'events'
 Driver = require './driver'
 Pool = require './pool'
-
+loglet = require 'loglet'
 
 class DBI 
   @drivers = {}
@@ -29,7 +29,7 @@ class DBI
     else
       throw {error: 'unknown_driver_spec', key: key}
   @connect: (key, cb) ->
-    #console.log 'DBI.connect', key
+    loglet.debug 'DBI.connect', key
     try 
       pool = @getPool key
       pool.connect cb 

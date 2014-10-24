@@ -67,7 +67,7 @@ class DBConnect extends EventEmitter
       else if loader instanceof Object
         for key, val of loader
           if loader.hasOwnProperty(key)
-            #console.log 'dbconnect.loadModule', key, val
+            loglet.debug 'dbconnect.loadModule', key, val
             if val instanceof Function
               @prepare key, val
             else
@@ -148,7 +148,7 @@ class DBConnect extends EventEmitter
         if err
           cb err
         else
-          #console.log "#{@constructor.name}.insert:result", results instanceof Array
+          loglet.debug "#{@constructor.name}.insert:result", results instanceof Array
           if results instanceof Array
             cb null, @makeRecordSet(tableName, results)
           else
@@ -189,7 +189,7 @@ class DBConnect extends EventEmitter
           if err
             cb err
           else
-            #console.log "#{@constructor.name}.select", tableName
+            loglet.debug "#{@constructor.name}.select", tableName
             cb null, @makeRecordSet tableName, results
         catch err
           cb err

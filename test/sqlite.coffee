@@ -5,6 +5,7 @@ assert = require 'assert'
 async = require 'async'
 path = require 'path'
 fs = require 'fs'
+loglet = require 'loglet'
 
 describe 'sqlite driver test', () ->
   
@@ -79,7 +80,7 @@ describe 'sqlite driver test', () ->
           conn.disconnect next 
     list = [1, 2, 3, 4, 5, 6, 7]
     async.each list, helper, (err) ->
-      #console.log 'async.last', err
+      loglet.debug 'async.last', err
       if err
         done err
       else

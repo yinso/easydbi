@@ -5,13 +5,14 @@
 # this should be part of the driver basically... 
 # the idea is simple at this level. 
 # we will take in a named object, and we will the query object normalize them into two things... one is the string, and the other is the object.
+loglet = require 'loglet'
 
 arrayifyOptions = 
   key: '?'
   merge: false # keep the args separate.
 
 arrayify = (stmt, args, options = arrayifyOptions) ->
-  #console.log 'query.arrayify', stmt, args, options
+  loglet.debug 'query.arrayify', stmt, args, options
   # split the stmt.
   segments = stmt.split /(\$\w+)/g
   outputSegments = []
@@ -29,7 +30,7 @@ arrayify = (stmt, args, options = arrayifyOptions) ->
     else
       outputSegments.push seg 
   newStmt = outputSegments.join('')
-  #console.log 'arrayify.output', newStmt, outputArgs , outputSegments
+  loglet.debug 'arrayify.output', newStmt, outputArgs , outputSegments
   [ newStmt , outputArgs  ]
 
 escape = (arg) ->

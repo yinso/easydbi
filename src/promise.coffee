@@ -1,5 +1,6 @@
 
 async = require 'async'
+loglet = require 'loglet'
 
 class Promise
   @make: () ->
@@ -29,7 +30,7 @@ class Promise
     interim = null
     helper = (call, next) ->
       cb = (err, res) ->
-          #console.log 'cb======', err, interim
+          loglet.debug 'cb======', err, interim
           if err 
             next err
           else 
@@ -38,7 +39,7 @@ class Promise
       if call.length > 1 
         call interim, cb
       else
-        #console.log 'helper-non-interim', call
+        loglet.debug 'helper-non-interim', call
         call cb
     async.eachSeries @calls, helper, (err) ->
       try 

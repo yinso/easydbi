@@ -3,13 +3,14 @@ sqlite3 = require('sqlite3').verbose()
 DBI = require './dbi'
 Driver = require './driver'
 queryHelper = require './query'
+loglet = require 'loglet'
 
 class Sqlite3Driver extends Driver
   @pool = false
   @id = 0
   constructor: (@options) ->
     super @options
-    #console.log 'constructor:id', @id
+    loglet.debug 'constructor:id', @id
     @connstr = @makeConnStr @options
   makeConnStr: (options) ->
     if options.memory
@@ -19,17 +20,17 @@ class Sqlite3Driver extends Driver
     else
       ":memory:"
   connect: (cb) ->
-    #console.log "#{@driverName()}.connect", @options
+    loglet.debug "#{@driverName()}.connect", @options
     self = @
     @inner = new sqlite3.Database @connstr, (err) ->
       if err
         cb err
       else
-        #console.log "#{self.driverName()}.connect:OK", self.id
+        loglet.debug "#{self.driverName()}.connect:OK", self.id
         cb null, self
   isConnected: () ->
     val = @inner instanceof sqlite3.Database
-    #console.log "#{@driverName()}.isConnected", val
+    loglet.debug "#{@driverName()}.isConnected", val
     val
   query: (stmt, args, cb) ->
     try 

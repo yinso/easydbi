@@ -24,6 +24,10 @@ arrayify = (stmt, args, options = arrayifyOptions) ->
         throw {error: 'query.arrayify:missing_argument', key: key, args: args, stmt: stmt}
       else if options.merge 
         outputSegments.push escape(args[key])
+      else if (typeof(options.key) == 'function') or (options.key instanceof Function)
+        keyVal = options.key()
+        outputSegments.push keyVal
+        outputArgs.push args[key]
       else
         outputSegments.push options.key
         outputArgs.push args[key]

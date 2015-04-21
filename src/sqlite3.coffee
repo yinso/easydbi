@@ -8,19 +8,20 @@ loglet = require 'loglet'
 class Sqlite3Driver extends Driver
   @pool = false
   @id = 0
-  constructor: (@options) ->
-    super @options
-    loglet.debug 'constructor:id', @id
+  constructor: (@key, @options) ->
+    super @key, @options
     @connstr = @makeConnStr @options
+    #loglet.log 'constructor:id', @id, @connstr
+    @type = 'sqlite3'
   makeConnStr: (options) ->
-    if options.memory
+    if options?.memory
       ":memory:"
     else if options.filePath
       options.filePath 
     else
       ":memory:"
   connect: (cb) ->
-    loglet.debug "#{@driverName()}.connect", @options
+    #loglet.log "#{@driverName()}.connect", @options, @connstr
     self = @
     @inner = new sqlite3.Database @connstr, (err) ->
       if err

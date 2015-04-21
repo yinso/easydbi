@@ -17,11 +17,14 @@ class DBI
     else
       throw {error: 'unknown_dbi_driver_type', type: type}
   @setup: (key, {type, options, pool}) ->
+    #loglet.log 'DBI.setup', key, type, options, pool
     driver = @getType type 
-    if driver.pool
-      @pools[key] = new Pool key, driver, options, pool
+    if driver.pool and pool
+      @pools[key] = new driver.pool key, type, driver, options, pool
+    else if pool
+      @pools[key] = new Pool key, type, driver, options, pool
     else
-      @pools[key] = new Pool.NoPool key, driver, options, pool
+      @pools[key] = new Pool.NoPool key, type, driver, options, pool
     @
   @getPool: (key) ->
     if @pools.hasOwnProperty(key)
@@ -29,7 +32,7 @@ class DBI
     else
       throw {error: 'unknown_driver_spec', key: key}
   @connect: (key, cb) ->
-    loglet.debug 'DBI.connect', key
+    #loglet.debug 'DBI.connect', key
     try 
       pool = @getPool key
       pool.connect cb 

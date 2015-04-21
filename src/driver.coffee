@@ -5,7 +5,8 @@
 class Driver extends EventEmitter
   @id = 0
   @pool = true
-  constructor: (@options) ->
+  constructor: (@key, @options) ->
+    #console.log 'Driver.ctor', @key, @options
     @constructor.id++
     @id = @constructor.id
   connect: (cb) ->
@@ -19,8 +20,10 @@ class Driver extends EventEmitter
         cb err
       if rows?.length == 0
         cb {error: 'no_rows_found'}
-      else
+      else if rows?.length > 0
         cb null, rows[0]
+      else
+        cb {error: 'unknown_result', result: rows}
   exec: (key, args, cb) ->
     @query key, args, (err, rows) ->
       if err

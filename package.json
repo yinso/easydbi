@@ -2,7 +2,7 @@
   "author": "YC <yinso.chen@gmail.com>",
   "name": "easydbi",
   "description": "A simple database interface for NodeJS",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/yinso/easydbi.git"
@@ -11,6 +11,7 @@
   "engines": {
     "node": ">= 0.8.4"
   },
+  "license": "MIT",
   "scripts": {
     "test": "make test",
     "prepublish": "make"

@@ -3,8 +3,9 @@ Driver = require './driver'
 { EventEmitter } = require 'events'
 _ = require 'underscore'
 loglet = require 'loglet'
+Promise = require 'bluebird'
 
-class NoPool 
+class NoPool
   constructor: (@key, @type, driver, @connOptions, @options) ->
     self = @
     #loglet.log 'Easydbi.NoPool.ctor', @key, @type, @connOptions, @options
@@ -13,26 +14,29 @@ class NoPool
   connect: (cb) ->
     #loglet.log 'Easydbi.NoPool.connect', @key, @connOptions
     conn = new @driver @key, @connOptions
-    conn.connect cb 
+    conn = Promise.promisifyAll conn
+    conn.connect cb
   prepare: (call, options) ->
-    proc = 
-      if options?.query 
+    proc =
+      if options?.query
         (args, cb) ->
-          @query options.query, args, cb 
+          @query options.query, args, cb
       else if options?.exec
         (args, cb) ->
-          @exec options.exec, args, cb 
-      else if options instanceof Function 
+          @exec options.exec, args, cb
+      else if options instanceof Function
         options
       else
         throw {error: 'invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
 
+NoPool.prototype.connectAsync = Promise.promisify(NoPool.prototype.connect)
+
 # we will have 
 class Pool extends EventEmitter
   @NoPool = NoPool
-  @defaultOptions: 
-    min: 0 
+  @defaultOptions:
+    min: 0
     max: 20
   constructor: (@key, @type, driver, @connOptions, @options) ->
     @options = _.extend {}, @constructor.defaultOptions, @options or {}
@@ -50,24 +54,25 @@ class Pool extends EventEmitter
       if db.isConnected()
         cb null, db
       else
-        db.connect cb 
-    if @avail.length > 0 
+        db.connect cb
+    if @avail.length > 0
       db = @avail.shift()
       connectMe db
-    else 
+    else
       @once 'available', connectMe
       if @total.length < @options.max
-        db = new @driver @key, @connOptions 
+        db = new @driver @key, @connOptions
+        db = Promise.promisifyAll db
         @total.push db
         @makeAvailable db
   prepare: (call, options) ->
-    proc = 
-      if options?.query 
+    proc =
+      if options?.query
         (args, cb) ->
-          @query options.query, args, cb 
+          @query options.query, args, cb
       else if options?.exec
         (args, cb) ->
-          @exec options.exec, args, cb 
+          @exec options.exec, args, cb
       else if (options instanceof Function) or (typeof(options) == 'function')
         options
       else
@@ -75,7 +80,9 @@ class Pool extends EventEmitter
     @driver.prototype[call] = proc
   makeAvailable: (db) ->
     if not _.contains @avail, db
-      @avail.push db 
+      @avail.push db
     @emit 'available', db
+
+Pool.prototype.connectAsync = Promise.promisify(Pool.prototype.connect)
 
 module.exports = Pool

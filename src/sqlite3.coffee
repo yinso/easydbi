@@ -34,6 +34,9 @@ class Sqlite3Driver extends Driver
     loglet.debug "#{@driverName()}.isConnected", val
     val
   query: (stmt, args, cb) ->
+    if arguments.length == 2
+      cb = args 
+      args = {}
     try 
       [ normedStmt, normedArgs ] = queryHelper.arrayify stmt, args
       @inner.all normedStmt, normedArgs, cb 
@@ -47,8 +50,11 @@ class Sqlite3Driver extends Driver
       if err?.code == 'SQLITE_BUSY'
         setTimeout waitCallback, self.options?.timeout or 500
       else
-        cb err, res
+        cb err
   exec: (stmt, args, cb) ->
+    if arguments.length == 2
+      cb = args 
+      args = {}
     try 
       [ stmt, args ] = queryHelper.arrayify stmt, args
       @_exec stmt, args, cb

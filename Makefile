@@ -39,11 +39,11 @@ node_modules:
 	npm install -d
 
 $(BUILDDIR)/%.js: $(VPATH)/%.coffee
-	coffee -o $(BUILDDIR) -c $<
+	./node_modules/.bin/coffee -o $(BUILDDIR) -c $<
 
 .PHONY: watch
 watch:
-	coffee --watch -o $(BUILDDIR) -c $(VPATH)
+	./node_modules/.bin/coffee --watch -o $(BUILDDIR) -c $(VPATH)
 
 .PHONY: start
 start:	all

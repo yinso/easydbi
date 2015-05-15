@@ -3,10 +3,11 @@
 Driver = require './driver'
 Pool = require './pool'
 loglet = require 'loglet'
+Promise = require 'bluebird'
 
-class DBI 
+class DBI
   @drivers = {}
-  @pools = {} 
+  @pools = {}
   # this register the type... 
   @register: (type, driver) ->
     @drivers[type] = driver
@@ -18,7 +19,7 @@ class DBI
       throw {error: 'unknown_dbi_driver_type', type: type}
   @setup: (key, {type, options, pool}) ->
     #loglet.log 'DBI.setup', key, type, options, pool
-    driver = @getType type 
+    driver = @getType type
     if driver.pool and pool
       @pools[key] = new driver.pool key, type, driver, options, pool
     else if pool
@@ -26,6 +27,8 @@ class DBI
     else
       @pools[key] = new Pool.NoPool key, type, driver, options, pool
     @
+  @tearDown: (key) -> # this should only be called if all connections disconnected.
+    delete @pools[key]
   @getPool: (key) ->
     if @pools.hasOwnProperty(key)
       @pools[key]
@@ -33,14 +36,15 @@ class DBI
       throw {error: 'unknown_driver_spec', key: key}
   @connect: (key, cb) ->
     #loglet.debug 'DBI.connect', key
-    try 
+    try
       pool = @getPool key
-      pool.connect cb 
-    catch e 
+      pool.connect cb
+    catch e
       cb e
+  @connectAsync: Promise.promisify(@connect)
   @load: (key, module) ->
     for call, options of module
-      @prepare key, call, options 
+      @prepare key, call, options
     @
   @prepare: (key, call, options) ->
     pool= @getPool key

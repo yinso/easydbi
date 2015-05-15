@@ -19,17 +19,17 @@ By default EasyDBI comes with Sqlite3.
     DBI.prepare('test', 'insertTest', {exec: 'insert into test_t valeus ($c1, $c2)'});
     
     // load a whole module of prepared queries. => sync operation. 
-    DBI.load('sqlite', require('some-prepared-module'));
+    DBI.load('test', require('some-prepared-module'));
     
     // making a connection
-    DBI.connect(function (err, conn) {
+    DBI.connect('test', function (err, conn) {
       if (err) {
         return err;
       } else {
         conn.createTest({}, function(... ) { ... })
       }
     });
-    
+
 
 ## Setup
 
@@ -84,6 +84,30 @@ DML such as `insert`, `update`, and `delete` should be passed via `conn.exec` in
     conn.commit(function(err) { /* ... */ });
     
     conn.rollback(function(err) { /* ... */ });
+
+## Run scripts
+
+    conn.execScript(filePath, function(err) { /* ... */ });
+
+This function expects the script to contain SQL statements that are delimited by `;`. Since it's a simple split on `;`, make sure you do not have string literals 
+in the script that contains `;`.
+
+`execScript` isn't wrapped in a transaction. So if you need it to contain transactions, make sure you call `begin` and `commit` around the call.
+
+## Promise
+
+`Easydbi` utilizes `bluebird` to provide the promise-based version of the calls. Just append `Async` to each of the above calls, i.e. 
+
+* `DBI.connect(name, cb)` becomes `DBI.connectAsync(name)`
+* `conn.disconnect(cb)` becomes `conn.disconnectAsync()`
+* `conn.query(query, args, cb)` becomes `conn.queryAsync(query, args)`
+* `conn.queryOne(query, args, cb)` becomes `conn.queryOneAsync(query, args)`
+* `conn.exec(query, args, cb)` becomes `conn.execAsync(query, args)`
+* `conn.begin(cb)` becomes `conn.beginAsync()`
+* `conn.commit(cb)` becomes `conn.commitAsync()`
+* `conn.rollback(cb)` becomes `conn.rollbackAsync()`
+* `conn.execScript(filePath, cb)` becomes `conn.execScriptAsync(filePath)`
+
 
 
 

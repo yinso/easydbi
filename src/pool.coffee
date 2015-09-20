@@ -14,7 +14,6 @@ class NoPool
   connect: (cb) ->
     #loglet.log 'Easydbi.NoPool.connect', @key, @connOptions
     conn = new @driver @key, @connOptions
-    conn = Promise.promisifyAll conn
     conn.connect cb
   prepare: (call, options) ->
     proc =
@@ -62,7 +61,6 @@ class Pool extends EventEmitter
       @once 'available', connectMe
       if @total.length < @options.max
         db = new @driver @key, @connOptions
-        db = Promise.promisifyAll db
         @total.push db
         @makeAvailable db
   prepare: (call, options) ->

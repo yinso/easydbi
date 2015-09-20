@@ -57,4 +57,6 @@ class Driver extends EventEmitter
         cb null
       ).catch(cb)
 
+Promise.promisifyAll Driver.prototype
+
 module.exports = Driver

@@ -1,4 +1,4 @@
-_ = require 'underscore'
+_ = require 'lodash'
 uuid = require './uuid'
 {EventEmitter} = require 'events'
 Schema = require './schema'

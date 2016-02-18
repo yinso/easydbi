@@ -1,7 +1,7 @@
 Driver = require './driver'
 
 { EventEmitter } = require 'events'
-_ = require 'underscore'
+_ = require 'lodash'
 loglet = require 'loglet'
 Promise = require 'bluebird'
 
@@ -28,6 +28,7 @@ class NoPool
       else
         throw {error: 'invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
+    Promise.promisifyAll @driver.prototype
 
 NoPool.prototype.connectAsync = Promise.promisify(NoPool.prototype.connect)
 
@@ -76,6 +77,7 @@ class Pool extends EventEmitter
       else
         throw {error: 'invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
+    Promise.promisifyAll @driver.prototype
   makeAvailable: (db) ->
     if not _.contains @avail, db
       @avail.push db

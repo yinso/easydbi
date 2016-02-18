@@ -1,6 +1,6 @@
 { EventEmitter } = require 'events'
 Promise = require 'bluebird'
-fs = Promise.promisifyAll require 'fs.extra'
+fs = Promise.promisifyAll require 'fs'
 
 # extremely easy 
 class Driver extends EventEmitter

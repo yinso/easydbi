@@ -2,8 +2,9 @@
 { EventEmitter } = require 'events'
 Driver = require './driver'
 Pool = require './pool'
-loglet = require 'loglet'
+debug = require('debug')('easydbi')
 Promise = require 'bluebird'
+Errorlet = require 'errorlet'
 
 class DBI
   @drivers = {}
@@ -16,9 +17,13 @@ class DBI
     if @drivers.hasOwnProperty(type)
       @drivers[type]
     else
-      throw {error: 'unknown_dbi_driver_type', type: type}
+      Errorlet.raise {error: 'EASYDBI.unknown_dbi_driver_type', type: type}
+  @hasType: (type) ->
+    @drivers.hasOwnProperty type
+  @hasSetup: (key) ->
+    @pools.hasOwnProperty key
   @setup: (key, {type, options, pool}) ->
-    #loglet.log 'DBI.setup', key, type, options, pool
+    debug 'DBI.setup', key, type, options, pool
     driver = @getType type
     if driver.pool and pool
       @pools[key] = new driver.pool key, type, driver, options, pool
@@ -33,9 +38,9 @@ class DBI
     if @pools.hasOwnProperty(key)
       @pools[key]
     else
-      throw {error: 'unknown_driver_spec', key: key}
+      Errorlet.raise {error: 'EASYDBI.unknown_driver_spec', key: key}
   @connect: (key, cb) ->
-    #loglet.debug 'DBI.connect', key
+    debug 'DBI.connect', key
     try
       pool = @getPool key
       pool.connect cb

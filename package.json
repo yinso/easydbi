@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "bluebird": "^3.3.1",
+    "debug": "^2.2.0",
     "errorlet": "^0.2.0",
-    "lodash": "^4.5.0",
-    "loglet": "^0.2.0",
+    "lodash": "^4.5.1",
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {

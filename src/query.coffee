@@ -5,14 +5,15 @@
 # this should be part of the driver basically... 
 # the idea is simple at this level. 
 # we will take in a named object, and we will the query object normalize them into two things... one is the string, and the other is the object.
-loglet = require 'loglet'
+debug = require('debug')('easydbi')
+Errorlet = require 'errorlet'
 
 arrayifyOptions = 
   key: '?'
   merge: false # keep the args separate.
 
 arrayify = (stmt, args, options = arrayifyOptions) ->
-  loglet.debug 'query.arrayify', stmt, args, options
+  debug 'query.arrayify', stmt, args, options
   # split the stmt.
   segments = stmt.split /(\$\w+)/g
   outputSegments = []
@@ -21,7 +22,7 @@ arrayify = (stmt, args, options = arrayifyOptions) ->
     if seg.match /^\$/
       key = seg.substring(1)
       if not args.hasOwnProperty(key)
-        throw {error: 'query.arrayify:missing_argument', key: key, args: args, stmt: stmt}
+        Errorlet.raise {error: 'EASYDBI.query.arrayify:missing_argument', key: key, args: args, stmt: stmt}
       else if options.merge 
         outputSegments.push escape(args[key])
       else if (typeof(options.key) == 'function') or (options.key instanceof Function)
@@ -34,7 +35,7 @@ arrayify = (stmt, args, options = arrayifyOptions) ->
     else
       outputSegments.push seg 
   newStmt = outputSegments.join('')
-  loglet.debug 'arrayify.output', newStmt, outputArgs , outputSegments
+  debug 'arrayify.output', newStmt, outputArgs , outputSegments
   [ newStmt , outputArgs  ]
 
 escape = (arg) ->
@@ -43,7 +44,7 @@ escape = (arg) ->
   else if arg intanceof Date
     escape(arg.toString())
   else if arg instanceof Object
-    throw {error: 'query.escape:invalid_argument', arg: arg}
+    Errorlet.raise {error: 'EASYDBI.query.escape:invalid_argument', arg: arg}
   else
     arg
 

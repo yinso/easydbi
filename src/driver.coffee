@@ -1,6 +1,10 @@
 { EventEmitter } = require 'events'
 Promise = require 'bluebird'
 fs = Promise.promisifyAll require 'fs'
+path = require 'path'
+Errolet = require 'errorlet'
+_ = require 'lodash'
+debug = require('debug')('easydbi')
 
 # extremely easy 
 class Driver extends EventEmitter
@@ -14,6 +18,31 @@ class Driver extends EventEmitter
   isConnected: () -> false
   driverName: () ->
     @constructor.name
+  loadScript: (filePath, inTrans, cb) ->
+    if arguments.length == 2
+      cb = inTrans
+      inTrans = false
+    debug 'DBI.Driver.loadScript', { filePath: filePath, inTrans: inTrans }
+    self = @
+    fs.readFileAsync(filePath, 'utf8')
+      .then (data) ->
+        cmds = _.filter data.split(/\s*;\s*/), (cmd) -> cmd.trim() != ''
+        if inTrans
+          self.beginAsync()
+            .then ->
+              Promise.each cmds, (cmd) ->
+                self.execAsync cmd, {}
+            .then ->
+              self.commitAsync()
+            .catch (e) ->
+              self.rollback ->
+                return cb e
+        else
+          Promise.each cmds, (cmd) ->
+            self.execAsync cmd, {}
+      .then () ->
+        cb null
+      .catch cb
   query: (key, args, cb) -> # query will return results. 
   queryOne: (key, args, cb) ->
     if arguments.length == 2
@@ -23,11 +52,11 @@ class Driver extends EventEmitter
       if err
         cb err
       if rows?.length == 0
-        cb {error: 'no_rows_found'}
+        cb Errorlet.create {error: 'EASYDBI.queryOne:no_rows_found'}
       else if rows?.length > 0
         cb null, rows[0]
       else
-        cb {error: 'unknown_result', result: rows}
+        cb Errorlet.create {error: 'EASYDBI.queryOne:unknown_result', result: rows}
   exec: (key, args, cb) ->
     if arguments.length == 2
       cb = args

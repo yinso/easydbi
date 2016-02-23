@@ -2,17 +2,18 @@ Driver = require './driver'
 
 { EventEmitter } = require 'events'
 _ = require 'lodash'
-loglet = require 'loglet'
+debug = require('debug')('easydbi')
 Promise = require 'bluebird'
+Errorlet = require 'errorlet'
 
 class NoPool
   constructor: (@key, @type, driver, @connOptions, @options) ->
     self = @
-    #loglet.log 'Easydbi.NoPool.ctor', @key, @type, @connOptions, @options
+    debug 'Easydbi.NoPool.ctor', @key, @type, @connOptions, @options
     @driver = class noPoolDriver extends driver
       @id = 0
   connect: (cb) ->
-    #loglet.log 'Easydbi.NoPool.connect', @key, @connOptions
+    debug 'Easydbi.NoPool.connect', @key, @connOptions
     conn = new @driver @key, @connOptions
     conn.connect cb
   prepare: (call, options) ->
@@ -26,7 +27,7 @@ class NoPool
       else if options instanceof Function
         options
       else
-        throw {error: 'invalid_prepare_option', call: call, options: options}
+        Errorlet.raise {error: 'EASYDBI.prepare:invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
     Promise.promisifyAll @driver.prototype
 
@@ -41,7 +42,7 @@ class Pool extends EventEmitter
   constructor: (@key, @type, driver, @connOptions, @options) ->
     @options = _.extend {}, @constructor.defaultOptions, @options or {}
     self = @
-    #loglet.log 'Easydbi.Pool.ctor', @key, @type
+    debug 'Easydbi.Pool.ctor', @key, @type
     @driver = class poolDriver extends driver
       @id = 0
       disconnect: (cb) ->
@@ -49,7 +50,7 @@ class Pool extends EventEmitter
     @total = [] # everything is managed here...
     @avail = [] # we keep track of what's currently available.
   connect: (cb) ->
-    #loglet.log 'Pool.connect', @options, @total.length, @avail.length
+    debug 'Pool.connect', @options, @total.length, @avail.length
     connectMe = (db) ->
       if db.isConnected()
         cb null, db
@@ -75,7 +76,7 @@ class Pool extends EventEmitter
       else if (options instanceof Function) or (typeof(options) == 'function')
         options
       else
-        throw {error: 'invalid_prepare_option', call: call, options: options}
+        Errorlet.raise {error: 'EASYDBI.prepare:invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
     Promise.promisifyAll @driver.prototype
   makeAvailable: (db) ->

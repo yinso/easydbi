@@ -9,7 +9,7 @@ Errorlet = require 'errorlet'
 class DBI
   @drivers = {}
   @pools = {}
-  # this register the type... 
+  # this register the type...
   @register: (type, driver) ->
     @drivers[type] = driver
     @
@@ -24,6 +24,8 @@ class DBI
     @pools.hasOwnProperty key
   @setup: (key, {type, options, pool}) ->
     debug 'DBI.setup', key, type, options, pool
+    if @pools.hasOwnProperty(key)
+      Errorlet.raise {error: 'EASYDBI.setup:duplicate_setup', key: key}
     driver = @getType type
     if driver.pool and pool
       @pools[key] = new driver.pool key, type, driver, options, pool

@@ -18,14 +18,14 @@ class NoPool
     conn.connect cb
   prepare: (call, options) ->
     proc =
-      if options?.query
+      if (options instanceof Function) or typeof(options) == 'function'
+        options
+      else if options?.query
         (args, cb) ->
           @query options.query, args, cb
       else if options?.exec
         (args, cb) ->
           @exec options.exec, args, cb
-      else if options instanceof Function
-        options
       else
         Errorlet.raise {error: 'EASYDBI.prepare:invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc
@@ -67,14 +67,14 @@ class Pool extends EventEmitter
         @makeAvailable db
   prepare: (call, options) ->
     proc =
-      if options?.query
+      if (options instanceof Function) or typeof(options) == 'function'
+        options
+      else if options?.query
         (args, cb) ->
           @query options.query, args, cb
       else if options?.exec
         (args, cb) ->
           @exec options.exec, args, cb
-      else if (options instanceof Function) or (typeof(options) == 'function')
-        options
       else
         Errorlet.raise {error: 'EASYDBI.prepare:invalid_prepare_option', call: call, options: options}
     @driver.prototype[call] = proc

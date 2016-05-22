@@ -6,7 +6,7 @@ Errolet = require 'errorlet'
 _ = require 'lodash'
 debug = require('debug')('easydbi')
 
-# extremely easy 
+# extremely easy
 class Driver extends EventEmitter
   @id = 0
   @pool = true
@@ -43,7 +43,7 @@ class Driver extends EventEmitter
       .then () ->
         cb null
       .catch cb
-  query: (key, args, cb) -> # query will return results. 
+  query: (key, args, cb) -> # query will return results.
   queryOne: (key, args, cb) ->
     if arguments.length == 2
       cb = args

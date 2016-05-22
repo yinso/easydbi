@@ -25,7 +25,7 @@ class DBI
   @setup: (key, {type, options, pool}) ->
     debug 'DBI.setup', key, type, options, pool
     if @pools.hasOwnProperty(key)
-      Errorlet.raise {error: 'EASYDBI.setup:duplicate_setup', key: key}
+      Errorlet.raise {error: 'EASYDBI.setup:duplicate_setup', key: key, keys: Object.keys(@pools)}
     driver = @getType type
     if driver.pool and pool
       @pools[key] = new driver.pool key, type, driver, options, pool

@@ -2,7 +2,7 @@
 Promise = require 'bluebird'
 fs = Promise.promisifyAll require 'fs'
 path = require 'path'
-Errolet = require 'errorlet'
+Errorlet = require 'errorlet'
 _ = require 'lodash'
 debug = require('debug')('easydbi')
 

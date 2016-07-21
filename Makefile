@@ -19,7 +19,7 @@ objects: $(COFFEE_OBJECTS)
 
 .PHONY: test
 test: build
-	./node_modules/.bin/testlet
+	npm test
 
 .PHONY: clean
 clean:

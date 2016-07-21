@@ -5,6 +5,7 @@ Pool = require './pool'
 debug = require('debug')('easydbi')
 Promise = require 'bluebird'
 Errorlet = require 'errorlet'
+Schema = require 'schemalet'
 
 class DBI
   @drivers = {}
@@ -41,14 +42,22 @@ class DBI
       @pools[key]
     else
       Errorlet.raise {error: 'EASYDBI.unknown_driver_spec', key: key}
-  @connect: (key, cb) ->
-    debug 'DBI.connect', key
-    try
-      pool = @getPool key
-      pool.connect cb
-    catch e
-      cb e
-  @connectAsync: Promise.promisify(@connect)
+  @connect: Schema.makeFunction {
+      async: true,
+      params: [
+        { type: 'string' }
+      ],
+      returns: Driver
+    },
+    (key, cb) ->
+      debug 'DBI.connect', key
+      try
+        pool = @getPool key
+        pool.connect cb
+      catch e
+        cb e
+  @connectAsync: @connect
+#  @connectAsync: Promise.promisify(@connect)
   @load: (key, module) ->
     for call, options of module
       @prepare key, call, options

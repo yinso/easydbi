@@ -5,23 +5,54 @@ path = require 'path'
 Errorlet = require 'errorlet'
 _ = require 'lodash'
 debug = require('debug')('easydbi')
+Schema = require 'schemalet'
 
-# extremely easy
+QueryKey = Schema.makeSchema
+  type: 'string'
+
+QueryArgs = Schema.makeSchema
+  type: 'object'
+  defaultProc: () -> {} 
+
+ResultRecord = Schema.makeSchema
+  type: 'object'
+
+ResultSet = Schema.makeSchema
+  type: 'array'
+  items: ResultRecord
+
 class Driver extends EventEmitter
   @id = 0
   @pool = true
   constructor: (@key, @options) ->
-    #console.log 'Driver.ctor', @key, @options
     @constructor.id++
     @id = @constructor.id
-  connect: (cb) ->
-  isConnected: () -> false
-  driverName: () ->
+  connect: Schema.makeFunction {
+    params: []
+    async: true
+  },
+  (cb) ->
+    @innerConnect cb
+  isConnected: Schema.makeFunction {
+    params: []
+    returns: { type: 'boolean' }
+  },
+  () ->
+    @innerIsConnected()
+  driverName: Schema.makeFunction {
+    params: []
+    returns: { type: 'string' }
+  },
+  () ->
     @constructor.name
-  loadScript: (filePath, inTrans, cb) ->
-    if arguments.length == 2
-      cb = inTrans
-      inTrans = false
+  loadScript: Schema.makeFunction {
+    params: [
+      { type: 'string' }
+      { type: 'boolean', default: false }
+    ]
+    async: true
+  },
+  (filePath, inTrans, cb) ->
     debug 'DBI.Driver.loadScript', { filePath: filePath, inTrans: inTrans }
     self = @
     fs.readFileAsync(filePath, 'utf8')
@@ -43,38 +74,103 @@ class Driver extends EventEmitter
       .then () ->
         cb null
       .catch cb
-  query: (key, args, cb) -> # query will return results.
-  queryOne: (key, args, cb) ->
-    if arguments.length == 2
-      cb = args
-      args = {}
-    @query key, args, (err, rows) ->
+  query: Schema.makeFunction {
+    async: true
+    params: [ QueryKey, QueryArgs ]
+    returns: ResultSet
+  }, (key, args, cb) ->
+    @innerQuery key, args, (err, results) ->
       if err
-        cb err
-      if rows?.length == 0
-        cb Errorlet.create {error: 'EASYDBI.queryOne:no_rows_found'}
-      else if rows?.length > 0
-        cb null, rows[0]
+        cb Errorlet.create
+          error: 'queryError'
+          method: 'EASYDBI.query'
+          query: key
+          args: args
+          __inner: err
       else
-        cb Errorlet.create {error: 'EASYDBI.queryOne:unknown_result', result: rows}
-  exec: (key, args, cb) ->
-    if arguments.length == 2
-      cb = args
-      args = {}
-    @query key, args, (err, rows) ->
-      if err
-        cb err
-      else
-        cb null
-  begin: (cb) ->
+        cb null, results
+  queryOne: Schema.makeFunction {
+    async: true
+    params: [ QueryKey, QueryArgs ]
+    returns: ResultRecord
+  },
+    (key, args, cb) ->
+      @query key, args, (err, rows) ->
+        if err
+          cb err
+        if rows?.length == 0
+          cb Errorlet.create
+            error: 'no_rows_found'
+            method: 'EASYDBI.queryOne'
+            query: key
+            args: args
+        else if rows?.length > 0
+          cb null, rows[0]
+        else
+          cb Errorlet.create
+            error: 'unknown_result'
+            method: 'EASYDBI.queryOne'
+            query: key
+            args: args
+            result: rows
+  innerExec: (key, args, cb) ->
+    @innerQuery key, args, cb
+  exec: Schema.makeFunction {
+      async: true
+      params: [ QueryKey, QueryArgs ]
+    },
+    (key, args, cb) ->
+      if arguments.length == 2
+        cb = args
+        args = {}
+      @innerExec key, args, (err, rows) ->
+        if err
+          cb err
+        else
+          cb null
+  begin: Schema.makeFunction {
+    async: true
+    params: []
+  },
+  (cb) ->
+    @innerBegin cb
+  innerBegin: (cb) ->
     @exec 'begin', cb
-  commit: (cb) ->
+  commit: Schema.makeFunction {
+    async: true
+    params: []
+  },
+  (cb) ->
+    @innerCommit cb
+  innerCommit: (cb) ->
     @exec 'commit', cb
-  rollback: (cb) ->
+  rollback: Schema.makeFunction {
+    async: true
+    params: []
+  },
+  (cb) ->
+    @innerRollback cb
+  innerRollback: (cb) ->
     @exec 'rollback', cb
-  disconnect: (cb) ->
-  close: (cb) -> # same as disconnect except in pool scenario.
-  execScript: (filePath, cb) ->
+  disconnect: Schema.makeFunction {
+    async: true
+    params: []
+  },
+  (cb) ->
+    @innerDisconnect cb
+  close: Schema.makeFunction {
+    async: true
+    params: []
+  },
+  (cb) -> # same as disconnect except in pool scenario.
+    @innerClose cb
+  execScript: Schema.makeFunction {
+    async: true
+    params: [
+      { type: 'string' }
+    ]
+  },
+  (filePath, cb) ->
     self = @
     fs.readFileAsync(filePath, 'utf8')
       .then((data) ->
@@ -85,6 +181,11 @@ class Driver extends EventEmitter
       ).then(() ->
         cb null
       ).catch(cb)
+
+#_.each Driver.prototype, (val, key) ->
+#  if typeof(val) == 'function' or val instanceof Function
+#    Driver.prototype[key + 'Async'] = (args...) ->
+#      @[key] args...
 
 Promise.promisifyAll Driver.prototype
 

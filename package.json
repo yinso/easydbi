@@ -21,7 +21,8 @@
     "debug": "^2.2.0",
     "errorlet": "^0.2.0",
     "lodash": "^4.5.1",
-    "node-uuid": "^1.4.7"
+    "node-uuid": "^1.4.7",
+    "schemalet": "^0.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",

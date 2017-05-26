@@ -4,6 +4,8 @@ EasyDBI is a simple database interface for NodeJS. The precessor, `DBConnect`, t
 
 EasyDBI used to come with Sqlite3 by default. This is now separated into its own module.
 
+> Easydbi now comes with a typescript definition as well.
+
 # Installation
 
     npm install easydbi

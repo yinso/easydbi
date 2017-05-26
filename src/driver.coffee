@@ -6,6 +6,7 @@ Errorlet = require 'errorlet'
 _ = require 'lodash'
 debug = require('debug')('easydbi')
 Schema = require 'schemalet'
+knex = require('knex')
 
 QueryKey = Schema.makeSchema
   type: 'string'
@@ -74,11 +75,20 @@ class Driver extends EventEmitter
       .then () ->
         cb null
       .catch cb
-  query: Schema.makeFunction {
-    async: true
-    params: [ QueryKey, QueryArgs ]
-    returns: ResultSet
-  }, (key, args, cb) ->
+  isKnexQueryBuilder: (key) ->
+    return key instanceof Object and key.client and key._statements instanceof Array
+  isValidQueryType: (key) ->
+    typeof(key) == 'string' or @isKnexQueryBuilder(key)
+  query: (key, args, cb) ->
+    if (arguments.length == 2)
+      cb = args
+      args = {}
+    if not @isValidQueryType(key)
+      return cb Errorlet.create
+        error: 'invalid_query_type'
+        method: 'EASYDBI.query'
+        query: key
+        message: 'must be string or Knex Query Builder object'
     @innerQuery key, args, (err, results) ->
       if err
         cb Errorlet.create
@@ -89,45 +99,51 @@ class Driver extends EventEmitter
           __inner: err
       else
         cb null, results
-  queryOne: Schema.makeFunction {
-    async: true
-    params: [ QueryKey, QueryArgs ]
-    returns: ResultRecord
-  },
-    (key, args, cb) ->
-      @query key, args, (err, rows) ->
-        if err
-          cb err
-        if rows?.length == 0
-          cb Errorlet.create
-            error: 'no_rows_found'
-            method: 'EASYDBI.queryOne'
-            query: key
-            args: args
-        else if rows?.length > 0
-          cb null, rows[0]
-        else
-          cb Errorlet.create
-            error: 'unknown_result'
-            method: 'EASYDBI.queryOne'
-            query: key
-            args: args
-            result: rows
+  queryOne: (key, args, cb) ->
+    if (arguments.length == 2)
+      cb = args
+      args = {}
+    if not @isValidQueryType(key)
+      return cb Errorlet.create
+        error: 'invalid_query_type'
+        method: 'EASYDBI.query'
+        query: key
+        message: 'must be string or Knex Query Builder object'
+    @query key, args, (err, rows) ->
+      if err
+        cb err
+      if rows?.length == 0
+        cb Errorlet.create
+          error: 'no_rows_found'
+          method: 'EASYDBI.queryOne'
+          query: key
+          args: args
+      else if rows?.length > 0
+        cb null, rows[0]
+      else
+        cb Errorlet.create
+          error: 'unknown_result'
+          method: 'EASYDBI.queryOne'
+          query: key
+          args: args
+          result: rows
   innerExec: (key, args, cb) ->
     @innerQuery key, args, cb
-  exec: Schema.makeFunction {
-      async: true
-      params: [ QueryKey, QueryArgs ]
-    },
-    (key, args, cb) ->
-      if arguments.length == 2
-        cb = args
-        args = {}
-      @innerExec key, args, (err, rows) ->
-        if err
-          cb err
-        else
-          cb null
+  exec: (key, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
+    if not @isValidQueryType(key)
+      return cb Errorlet.create
+        error: 'invalid_query_type'
+        method: 'EASYDBI.query'
+        query: key
+        message: 'must be string or Knex Query Builder object'
+    @innerExec key, args, (err, rows) ->
+      if err
+        cb err
+      else
+        cb null
   begin: Schema.makeFunction {
     async: true
     params: []
@@ -152,17 +168,9 @@ class Driver extends EventEmitter
     @innerRollback cb
   innerRollback: (cb) ->
     @exec 'rollback', cb
-  disconnect: Schema.makeFunction {
-    async: true
-    params: []
-  },
-  (cb) ->
+  disconnect: (cb) ->
     @innerDisconnect cb
-  close: Schema.makeFunction {
-    async: true
-    params: []
-  },
-  (cb) -> # same as disconnect except in pool scenario.
+  close: (cb) -> # same as disconnect except in pool scenario.
     @innerClose cb
   execScript: Schema.makeFunction {
     async: true

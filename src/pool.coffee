@@ -5,6 +5,7 @@ _ = require 'lodash'
 debug = require('debug')('easydbi')
 Promise = require 'bluebird'
 Errorlet = require 'errorlet'
+_.contains = _.includes
 
 class NoPool
   constructor: (@key, @type, driver, @connOptions, @options) ->
@@ -46,7 +47,11 @@ class Pool extends EventEmitter
     @driver = class poolDriver extends driver
       @id = 0
       disconnect: (cb) ->
-        self.makeAvailable @
+        try 
+          self.makeAvailable @
+          cb()
+        catch e
+          cb e
     @total = [] # everything is managed here...
     @avail = [] # we keep track of what's currently available.
   connect: (cb) ->

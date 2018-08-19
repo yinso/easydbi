@@ -1,17 +1,14 @@
 import * as driver from './driver';
 import * as Promise from 'bluebird';
-export interface SerializeDriverOptions<T extends driver.Driver> extends driver.DriverOptions {
+export interface SerializeDriverOptions extends driver.DriverOptions {
     outputDir: string;
-    driver: driver.DriverConstructor<T>;
-    driverOptions: driver.DriverOptions;
+    inner: driver.Driver;
 }
-export declare class SerializeDriver<T extends driver.Driver> extends driver.Driver {
+export declare class SerializeDriver extends driver.Driver {
+    readonly inner: driver.Driver;
     readonly outputDir: string;
-    readonly driver: driver.DriverConstructor<T>;
-    readonly driverOptions: driver.DriverOptions;
-    private _inner;
-    constructor(key: string, options: SerializeDriverOptions<T>);
-    connectAsync(): Promise<SerializeDriver<T>>;
+    constructor(key: string, options: SerializeDriverOptions);
+    connectAsync(): Promise<SerializeDriver>;
     isConnected(): boolean;
     queryAsync(query: driver.QueryType, args?: driver.QueryArgs): Promise<driver.ResultRecord[]>;
     execAsync(query: driver.QueryType, args?: driver.QueryArgs): Promise<void>;

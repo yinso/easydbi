@@ -5,20 +5,20 @@ export declare type PrepareOptions = Function | {
 } | {
     exec: string;
 };
-export declare class BaseAllocator<T extends Driver> implements Allocator {
+export declare class BaseAllocator implements Allocator {
     readonly key: string;
     readonly options: DriverOptions;
-    readonly _Driver: DriverConstructor<T>;
-    constructor(key: string, driver: DriverConstructor<T>, options: DriverOptions);
+    readonly _Driver: DriverConstructor;
+    constructor(key: string, driver: DriverConstructor, options: DriverOptions);
     connect(cb: ConnectCallback): void;
-    connectAsync(): Promise<T>;
+    connectAsync(): Promise<Driver>;
     prepare(call: string, options: any): void;
     _prepareQuery(call: string, query: string): void;
     _prepareExec(call: string, query: string): void;
 }
 export declare type WaitForCallback<T> = (err: Error | null, result?: T) => void;
-export declare class PoolAllocator<T extends Driver> extends BaseAllocator<T> {
+export declare class PoolAllocator extends BaseAllocator {
     private _pool;
-    constructor(key: string, driver: DriverConstructor<T>, options: DriverOptions);
-    connectAsync(): Promise<T>;
+    constructor(key: string, driver: DriverConstructor, options: DriverOptions);
+    connectAsync(): Promise<Driver>;
 }

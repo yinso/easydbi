@@ -6,7 +6,7 @@ import * as pool from '../lib/allocator';
 import * as driver from '../lib/driver';
 
 @suite class NoPoolTest {
-    pool : pool.BaseAllocator<MockDriver>;
+    pool : pool.BaseAllocator;
     drivers : driver.Driver[];
     constructor() {
         this.pool = new pool.BaseAllocator('test', MockDriver, {})
@@ -27,7 +27,7 @@ import * as driver from '../lib/driver';
 }
 
 @suite class PoolTest {
-    pool : pool.PoolAllocator<MockDriver>;
+    pool : pool.PoolAllocator;
     drivers : driver.Driver[];
     constructor() {
         this.pool = new pool.PoolAllocator('test', MockDriver, { pool: { min : 0, max: 10 }})

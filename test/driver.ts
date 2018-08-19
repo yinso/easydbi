@@ -5,7 +5,7 @@ import * as assert from 'assert';
 import { inspect } from 'util';
 
 export class MockDriver extends driver.Driver {
-    connectAsync() : Promise<MockDriver> {
+    connectAsync() : Promise<driver.Driver> {
         return Promise.resolve(this);
     }
 

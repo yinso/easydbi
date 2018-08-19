@@ -12,11 +12,11 @@ export type PrepareOptions = Function |
         exec: string;
     };
 
-export class BaseAllocator<T extends Driver> implements Allocator {
+export class BaseAllocator implements Allocator {
     readonly key : string;
     readonly options : DriverOptions;
-    readonly _Driver: DriverConstructor<T>;
-    constructor(key : string, driver : DriverConstructor<T>, options : DriverOptions) {
+    readonly _Driver: DriverConstructor;
+    constructor(key : string, driver : DriverConstructor, options : DriverOptions) {
         this.key = key;
         this.options = options;
         this._Driver = driver;
@@ -28,10 +28,9 @@ export class BaseAllocator<T extends Driver> implements Allocator {
             .catch(cb)
     }
 
-    connectAsync() : Promise<T> {
+    connectAsync() : Promise<Driver> {
         return Promise.try(() => new this._Driver(this.key, this.options))
             .then((conn) => conn.connectAsync())
-            .then((conn) => conn as T)
     }
 
     prepare (call : string, options : any) {
@@ -90,9 +89,9 @@ export type WaitForCallback<T> = (err : Error | null, result ?: T) => void;
 
 // this driver is going to share a particular pool?
 // or that the pool is going to return a 
-export class PoolAllocator<T extends Driver> extends BaseAllocator<T>  {
-    private _pool : pool.Pool<T>;
-    constructor(key : string, driver : DriverConstructor<T>, options : DriverOptions) {
+export class PoolAllocator extends BaseAllocator  {
+    private _pool : pool.Pool<Driver>;
+    constructor(key : string, driver : DriverConstructor, options : DriverOptions) {
         super(key, driver, options);
         this._pool = pool.createPool({
             create: () => Promise.resolve(new driver(key, options)),
@@ -100,8 +99,8 @@ export class PoolAllocator<T extends Driver> extends BaseAllocator<T>  {
         }, options.pool || { min : 0, max : Infinity })
     }
 
-    connectAsync() : Promise<T> {
-        return new Promise<T>((resolve, reject) => {
+    connectAsync() : Promise<Driver> {
+        return new Promise<Driver>((resolve, reject) => {
             return this._pool.acquire()
                 .then((driver) => {
                     driver.disconnectAsync = () => {

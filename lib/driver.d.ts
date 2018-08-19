@@ -60,6 +60,6 @@ export declare abstract class Driver extends EventEmitter implements Allocator {
     static id: number;
 }
 export declare function normalize<T>(arg: any, next?: any): [QueryArgs, T];
-export interface DriverConstructor<T extends Driver> {
-    new (key: string, options: DriverOptions): T;
+export interface DriverConstructor {
+    new (key: string, options: DriverOptions): Driver;
 }

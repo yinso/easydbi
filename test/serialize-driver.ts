@@ -5,6 +5,7 @@ import * as serialize from '../lib/serialize-driver';
 import * as sqljs from '../lib/sqljs-driver';
 import * as path from 'path';
 import * as fs from 'fs-extra-promise'
+import * as DBI from '../lib/dbi';
 
 describe('SerializeHelperTest', () => {
     let cases : {
@@ -54,19 +55,32 @@ describe('SerializeHelperTest', () => {
     })
 })
 
-let conn : serialize.SerializeDriver;
+let conn : serialize.SerializeDriver<sqljs.SqljsDriver>;
 
 let outputDir = path.join(__dirname, '..', 'run')
 let fooTablePath = path.join(outputDir, `foo.json`)
+
+DBI.setup('test-serialize', {
+    type: 'serialize',
+    options: {
+        driver: sqljs.SqljsDriver,
+        driverOptions: {},
+        outputDir: outputDir
+    }
+})
 
 @suite
 class SerializeDriverTest {
     @test
     canConnect() {
-        conn = new serialize.SerializeDriver('test', {
-            inner : new sqljs.SqljsDriver('test', {
+        return DBI.connectAsync<serialize.SerializeDriver<sqljs.SqljsDriver>>('test-serialize')
+            .then((driver) => {
+                conn = driver;
 
-            }),
+            })
+        conn = new serialize.SerializeDriver('test', {
+            driver: sqljs.SqljsDriver,
+            driverOptions: {},
             outputDir: outputDir
         })
         return conn.connectAsync()

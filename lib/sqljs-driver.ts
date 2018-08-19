@@ -2,7 +2,7 @@ import * as driver from './driver';
 import * as sql from 'sql.js';
 import * as Promise from 'bluebird';
 import * as helper from './query-helper';
-import { access } from 'fs';
+import * as DBI from './dbi';
 
 export interface SqljsDriverOptions extends driver.DriverOptions {
 
@@ -71,3 +71,5 @@ export class SqljsDriver extends driver.Driver {
         })
     }
 }
+
+DBI.register('sqljs', SqljsDriver);

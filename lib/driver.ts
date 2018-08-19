@@ -124,7 +124,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
         this.execScriptAsync(filePath)
             .then(() => cb(null))
             .catch(cb)
-    } 
+    }
 
     abstract connectAsync() : Promise<Driver>;
 
@@ -209,6 +209,6 @@ export function normalize<T>(arg : any, next ?: any) : [ QueryArgs , T ] {
     }
 }
 
-export interface DriverConstructor {
-    new(key: string, options: DriverOptions) : Driver;
+export interface DriverConstructor<T extends Driver> {
+    new(key: string, options: DriverOptions) : T;
 }

@@ -1,11 +1,9 @@
 import * as Promise from 'bluebird';
 import * as driver from './driver';
-import * as alloc from './pool';
-//import { Driver } from 'index';
-//import { resolve } from 'dns';
+import * as alloc from './allocator';
 
 const drivers : {[key: string]: driver.DriverConstructor} = {};
-const pools : {[key: string]: alloc.NoPoolAllocator} = {};
+const pools : {[key: string]: alloc.BaseAllocator} = {};
 
 export function register(type : string, driver : driver.DriverConstructor) {
     drivers[type] = driver;
@@ -47,7 +45,7 @@ export function setup(key : string, options : SetupOptions) {
     if (options.pool) {
         pools[key] = new alloc.PoolAllocator(key, driver, options.options);
     } else {
-        pools[key] = new alloc.NoPoolAllocator(key, driver, options.options);
+        pools[key] = new alloc.BaseAllocator(key, driver, options.options);
     }
 }
 
@@ -77,7 +75,6 @@ export function connect(key : string, cb : driver.ConnectCallback) {
 }
 
 export function load(key: string, module : {[key: string] : any}) {
-    console.log('************ DBI.load', module);
     Object.keys(module).forEach((call) => {
         prepare(key, call, module[call]);
     })

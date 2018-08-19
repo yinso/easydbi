@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Promise = require("bluebird");
 var mocha_typescript_1 = require("mocha-typescript");
 var driver_1 = require("./driver");
-var pool = require("../lib/pool");
+var pool = require("../lib/allocator");
 var NoPoolTest = /** @class */ (function () {
     function NoPoolTest() {
-        this.pool = new pool.NoPoolAllocator('test', driver_1.MockDriver, {});
+        this.pool = new pool.BaseAllocator('test', driver_1.MockDriver, {});
         this.drivers = [];
     }
     NoPoolTest.prototype.canConnect = function () {
@@ -81,4 +81,4 @@ var PoolTest = /** @class */ (function () {
     ], PoolTest);
     return PoolTest;
 }());
-//# sourceMappingURL=pool.js.map
+//# sourceMappingURL=allocator.js.map

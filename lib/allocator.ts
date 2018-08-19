@@ -2,8 +2,7 @@ import * as Promise from 'bluebird';
 import { Driver , DriverOptions, DriverConstructor, ConnectCallback, Allocator, NoResultCallback, ResultRecord , normalize , QueryArgs , ResultSetCallback } from './driver';
 import { EventEmitter } from 'events';
 
-import * as pool from 'generic-pool';
-import { resolve } from 'path';
+import * as pool from './pool-wrapper';
 
 export type PrepareOptions = Function |
     {
@@ -13,7 +12,7 @@ export type PrepareOptions = Function |
         exec: string;
     };
 
-export class NoPoolAllocator implements Allocator {
+export class BaseAllocator implements Allocator {
     readonly key : string;
     readonly options : DriverOptions;
     readonly _Driver: DriverConstructor;
@@ -88,81 +87,9 @@ export class NoPoolAllocator implements Allocator {
 
 export type WaitForCallback<T> = (err : Error | null, result ?: T) => void;
 
-export class Pool<T> extends EventEmitter {
-    readonly maker: () => Promise<T>;
-    readonly total : T[];
-    readonly available : T[];
-    readonly min : number;
-    readonly max : number;
-    readonly waitQueue : WaitForCallback<T>[];
-    constructor(maker : () => Promise<T>, min : number = 0, max : number = Infinity) {
-        super();
-        this.maker = maker;
-        this.total = [];
-        this.available = [];
-        this.min = min;
-        this.max = max;
-        this.waitQueue = [];
-        for (var i = 0; i < min; ++i) {
-            this.maker()
-                .then((item) => {
-                    this.total.push(item)
-                })
-        }
-        this.on('available', (item) => {
-            this._resolveWaitFor(item);
-        })
-    }
-
-    acquire(cb : WaitForCallback<T>) : void {
-        if (this.total.length <= this.max) {
-            this.maker()
-                .then((item) => {
-                    this.total.push(item)
-                    cb(null, item);
-                })
-                .catch(cb)
-        } else if (this.available.length > 0) {
-            let item = this.available.shift()
-            if (item) {
-                cb(null, item);
-            } else {
-                this._pushWaitFor(cb);
-            }
-        } else {
-            this._pushWaitFor(cb);
-        }
-    }
-
-    release(item : T) : void {
-        this.available.push(item);
-        this.emit('available', item);
-    }
-
-    private _pushWaitFor(cb : WaitForCallback<T>) {
-        this.waitQueue.push(cb);
-    }
-
-    private _resolveWaitFor(item : T) : void {
-        if (this.waitQueue.length > 0) {
-            let waitFor = this.waitQueue.shift();
-            if (waitFor) {
-                this.available.shift();
-                waitFor(null, item)
-            } else {
-                // NO OP
-                //this.available.push(item);
-            }
-        } else {
-            // NO OP
-            //this.available.push(item);
-        }
-    }
-}
-
 // this driver is going to share a particular pool?
 // or that the pool is going to return a 
-export class PoolAllocator extends NoPoolAllocator  {
+export class PoolAllocator extends BaseAllocator  {
     private _pool : pool.Pool<Driver>;
     constructor(key : string, driver : DriverConstructor, options : DriverOptions) {
         super(key, driver, options);
@@ -186,6 +113,4 @@ export class PoolAllocator extends NoPoolAllocator  {
                 }, reject)
         })
     }
-
-
 }

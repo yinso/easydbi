@@ -1,5 +1,5 @@
 export * from './dbi';
 export * from './driver';
 export * from './query-helper';
-export * from './pool';
-
+export * from './allocator';
+export * from './serialize-driver';

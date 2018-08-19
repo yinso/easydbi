@@ -2,14 +2,14 @@ import * as Promise from 'bluebird';
 import { suite , test , timeout } from 'mocha-typescript';
 import { MockDriver } from './driver';
 import * as assert from 'assert';
-import * as pool from '../lib/pool';
+import * as pool from '../lib/allocator';
 import * as driver from '../lib/driver';
 
 @suite class NoPoolTest {
-    pool : pool.NoPoolAllocator;
+    pool : pool.BaseAllocator;
     drivers : driver.Driver[];
     constructor() {
-        this.pool = new pool.NoPoolAllocator('test', MockDriver, {})
+        this.pool = new pool.BaseAllocator('test', MockDriver, {})
         this.drivers = []
     }
 

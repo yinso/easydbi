@@ -2,35 +2,46 @@
   "author": "YC <yinso.chen@gmail.com>",
   "name": "easydbi",
   "description": "A simple database interface for NodeJS",
-  "version": "0.2.9",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/yinso/easydbi.git"
   },
-  "main": "./lib/main",
+  "main": "./lib",
   "types": "./lib/index.d.ts",
   "engines": {
     "node": ">= 0.8.4"
   },
   "license": "BSD-3-Clause",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register --recursive",
-    "prepublish": "make"
+    "test": "./node_modules/.bin/mocha"
   },
   "dependencies": {
     "bluebird": "^3.3.1",
     "debug": "^2.2.0",
     "errorlet": "^0.2.0",
+    "generic-pool": "^3.4.2",
     "knex": "^0.12.9",
     "lodash": "^4.5.1",
     "node-uuid": "^1.4.7",
-    "schemalet": "^0.1.0"
+    "schemalet": "^0.1.0",
+    "source-map-support": "^0.5.6",
+    "sql.js": "^0.5.0",
+    "typescript": "^3.0.1"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.2",
+    "@types/chai": "^4.1.4",
+    "@types/fs-extra-promise": "^1.0.7",
+    "@types/generic-pool": "^3.1.4",
     "@types/knex": "0.0.47",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.5.6",
+    "@types/sql.js": "0.0.29",
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
-    "mocha": "^2.4.5"
+    "fs-extra-promise": "^1.0.1",
+    "mocha": "^2.5.3",
+    "mocha-typescript": "^1.1.17"
   }
 }

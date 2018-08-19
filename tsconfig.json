@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "declaration": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "rootDir": ".",
     "outDir": ".",
     "lib": [
-      "es5",
+      "es6",
       "es2015.promise",
       "dom"
     ],
@@ -16,7 +17,6 @@
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-      "pdf": ["pdf-dist"]
     }
   },
   "include": [

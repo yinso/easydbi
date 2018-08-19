@@ -3,14 +3,23 @@ import { suite , test , timeout } from 'mocha-typescript';
 import * as assert from 'assert';
 import { inspect } from 'util';
 import * as sql from '../lib/sqljs-driver';
+import { Driver } from '../lib';
+import * as DBI from '../lib/dbi';
 
-var conn : sql.SqljsDriver;
+var conn : Driver;
+
+DBI.setup('test-sqljs', {
+    type: 'sqljs',
+    options: {}
+})
 
 @suite class SqlJsTest {
     @test
     canConnect() {
-        conn = new sql.SqljsDriver('test', {})
-        return conn.connectAsync()
+        return DBI.connectAsync('test-sqljs')
+            .then((driver) => {
+                conn = driver
+            })
     }
 
     @test

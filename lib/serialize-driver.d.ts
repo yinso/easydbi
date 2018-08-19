@@ -2,11 +2,14 @@ import * as driver from './driver';
 import * as Promise from 'bluebird';
 export interface SerializeDriverOptions extends driver.DriverOptions {
     outputDir: string;
-    inner: driver.Driver;
+    driver: driver.DriverConstructor;
+    driverOptions: driver.DriverOptions;
 }
 export declare class SerializeDriver extends driver.Driver {
-    readonly inner: driver.Driver;
     readonly outputDir: string;
+    readonly driver: driver.DriverConstructor;
+    readonly driverOptions: driver.DriverOptions;
+    private readonly _inner;
     constructor(key: string, options: SerializeDriverOptions);
     connectAsync(): Promise<SerializeDriver>;
     isConnected(): boolean;

@@ -15,6 +15,7 @@ var serialize = require("../lib/serialize-driver");
 var sqljs = require("../lib/sqljs-driver");
 var path = require("path");
 var fs = require("fs-extra-promise");
+var DBI = require("../lib/dbi");
 describe('SerializeHelperTest', function () {
     var cases = [
         {
@@ -61,15 +62,22 @@ describe('SerializeHelperTest', function () {
 var conn;
 var outputDir = path.join(__dirname, '..', 'run');
 var fooTablePath = path.join(outputDir, "foo.json");
+DBI.setup('test-serialize', {
+    type: 'serialize',
+    options: {
+        driver: sqljs.SqljsDriver,
+        driverOptions: {},
+        outputDir: outputDir
+    }
+});
 var SerializeDriverTest = /** @class */ (function () {
     function SerializeDriverTest() {
     }
     SerializeDriverTest.prototype.canConnect = function () {
-        conn = new serialize.SerializeDriver('test', {
-            inner: new sqljs.SqljsDriver('test', {}),
-            outputDir: outputDir
+        DBI.connectAsync('test-serialize')
+            .then(function (driver) {
+            conn = driver;
         });
-        return conn.connectAsync();
     };
     SerializeDriverTest.prototype.canCreateTable = function () {
         return conn.execAsync("create table foo (c1 int, c2 int)")

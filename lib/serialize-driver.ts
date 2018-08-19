@@ -2,37 +2,43 @@ import * as driver from './driver';
 import * as Promise from 'bluebird';
 import * as fs from 'fs-extra-promise';
 import * as path from 'path';
+import * as DBI from './dbi';
 
 export interface SerializeDriverOptions extends driver.DriverOptions {
     outputDir: string;
-    inner : driver.Driver
+    driver: driver.DriverConstructor;
+    driverOptions : driver.DriverOptions;
 }
 
 // strictly speaking I want this to be passed in...
 export class SerializeDriver extends driver.Driver {
-    readonly inner : driver.Driver;
     readonly outputDir : string;
+    readonly driver : driver.DriverConstructor;
+    readonly driverOptions : driver.DriverOptions
+    private readonly _inner : driver.Driver;
     constructor(key : string, options : SerializeDriverOptions) {
         super(key, options)
-        this.inner = options.inner;
         this.outputDir = options.outputDir;
+        this.driver = options.driver;
+        this.driverOptions = options.driverOptions;
+        this._inner = new this.driver(key, this.driverOptions)
     }
 
     connectAsync() : Promise<SerializeDriver> {
-        return this.inner.connectAsync()
+        return this._inner.connectAsync()
             .then(() => this)
     }
 
     isConnected() {
-        return this.inner.isConnected();
+        return this._inner.isConnected();
     }
 
     queryAsync(query : driver.QueryType, args : driver.QueryArgs = {}) : Promise<driver.ResultRecord[]> {
-        return this.inner.queryAsync(query, args);
+        return this._inner.queryAsync(query, args);
     }
 
     execAsync(query : driver.QueryType, args : driver.QueryArgs = {}) : Promise<void> {
-        return this.inner.execAsync(query, args)
+        return this._inner.execAsync(query, args)
             .then(() => {
                 let affectedTable = getQueryTable(query);
                 if (affectedTable) {
@@ -48,7 +54,7 @@ export class SerializeDriver extends driver.Driver {
         if (isDropTable) {
             return fs.unlinkAsync(filePath)
         } else {
-            return this.inner.queryAsync(`select * from ${table}`)
+            return this._inner.queryAsync(`select * from ${table}`)
             .then((results) => {
                 return fs.writeFileAsync(filePath, JSON.stringify(results, null, 2))
             })
@@ -64,7 +70,7 @@ export class SerializeDriver extends driver.Driver {
     }
 
     disconnectAsync() : Promise<void> {
-        return this.inner.disconnectAsync();
+        return this._inner.disconnectAsync();
     }
 }
 
@@ -135,3 +141,5 @@ export function getQueryTable(query : driver.QueryType) : string | false {
         throw new Error(`UnknownQueryType: ${query}`)
     }
 }
+
+DBI.register('serialize', SerializeDriver);

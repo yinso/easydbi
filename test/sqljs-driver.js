@@ -11,14 +11,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mocha_typescript_1 = require("mocha-typescript");
 var assert = require("assert");
-var sql = require("../lib/sqljs-driver");
+var DBI = require("../lib/dbi");
 var conn;
+DBI.setup('test-sqljs', {
+    type: 'sqljs',
+    options: {}
+});
 var SqlJsTest = /** @class */ (function () {
     function SqlJsTest() {
     }
     SqlJsTest.prototype.canConnect = function () {
-        conn = new sql.SqljsDriver('test', {});
-        return conn.connectAsync();
+        return DBI.connectAsync('test-sqljs')
+            .then(function (driver) {
+            conn = driver;
+        });
     };
     SqlJsTest.prototype.canCreateTable = function () {
         return conn.execAsync('create table test(c1 int, c2 int)')

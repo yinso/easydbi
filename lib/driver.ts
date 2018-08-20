@@ -42,8 +42,8 @@ export abstract class Driver extends EventEmitter implements Allocator {
         super();
         this.key = key;
         this.options = options;
-        (this.constructor as typeof Driver).id++;
-        this.id = (this.constructor as typeof Driver).id;
+        Driver.id++;
+        this.id = Driver.id;
         this.pool = true;
     }
 

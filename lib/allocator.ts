@@ -93,10 +93,14 @@ export class PoolAllocator extends BaseAllocator  {
     private _pool : pool.Pool<Driver>;
     constructor(key : string, driver : DriverConstructor, options : DriverOptions) {
         super(key, driver, options);
+        let poolOptions = {
+            min : options.pool ? options.pool.min || 0 : 0,
+            max : options.pool ? options.pool.max || Infinity : Infinity
+        };
         this._pool = pool.createPool({
             create: () => Promise.resolve(new driver(key, options)),
             destroy: (client) => client.disconnectAsync()
-        }, options.pool || { min : 0, max : Infinity })
+        }, poolOptions)
     }
 
     connectAsync() : Promise<Driver> {

@@ -17,12 +17,6 @@
     "test": "./node_modules/.bin/mocha"
   },
   "dependencies": {
-    "@types/bluebird": "^3.5.2",
-    "@types/fs-extra-promise": "^1.0.7",
-    "@types/generic-pool": "^3.1.4",
-    "@types/knex": "0.0.47",
-    "@types/sql.js": "0.0.29",
-    "@types/node": "^10.5.6",
     "bluebird": "^3.3.1",
     "debug": "^2.2.0",
     "errorlet": "^0.2.0",
@@ -35,6 +29,12 @@
     "sql.js": "^0.5.0"
   },
   "devDependencies": {
+    "@types/node": "^10.5.6",
+    "@types/bluebird": "^3.5.2",
+    "@types/fs-extra-promise": "^1.0.7",
+    "@types/generic-pool": "^3.1.4",
+    "@types/knex": "0.0.47",
+    "@types/sql.js": "0.0.29",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
     "chai": "^3.5.0",

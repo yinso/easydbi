@@ -68,13 +68,17 @@ DBI.setup('test-serialize', {
         driver: sqljs.SqljsDriver,
         driverOptions: {},
         outputDir: outputDir
+    },
+    pool: {
+        min: 2,
+        max: 10
     }
 });
 var SerializeDriverTest = /** @class */ (function () {
     function SerializeDriverTest() {
     }
     SerializeDriverTest.prototype.canConnect = function () {
-        DBI.connectAsync('test-serialize')
+        return DBI.connectAsync('test-serialize')
             .then(function (driver) {
             conn = driver;
         });

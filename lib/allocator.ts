@@ -98,7 +98,14 @@ export class PoolAllocator extends BaseAllocator  {
             max : options.pool ? options.pool.max || Infinity : Infinity
         };
         this._pool = pool.createPool({
-            create: () => Promise.resolve(new driver(key, options)),
+            create: () => {
+                try {
+                    let conn = new driver(key, options);
+                    return conn.connectAsync();
+                } catch (e) {
+                    return Promise.reject(e)
+                }
+            },
             destroy: (client) => client.disconnectAsync()
         }, poolOptions)
     }

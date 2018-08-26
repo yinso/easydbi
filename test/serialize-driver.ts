@@ -67,6 +67,10 @@ DBI.setup('test-serialize', {
         driver: sqljs.SqljsDriver,
         driverOptions: {},
         outputDir: outputDir
+    },
+    pool: {
+        min: 2,
+        max: 10
     }
 })
 
@@ -74,7 +78,7 @@ DBI.setup('test-serialize', {
 class SerializeDriverTest {
     @test
     canConnect() {
-        DBI.connectAsync('test-serialize')
+        return DBI.connectAsync('test-serialize')
             .then((driver) => {
                 conn = driver
             })

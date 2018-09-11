@@ -5,6 +5,7 @@ import { inspect } from 'util';
 import * as sql from '../lib/sqljs-driver';
 import { Driver } from '../lib';
 import * as DBI from '../lib/dbi';
+require('../lib/sqljs-driver')
 
 var conn : Driver;
 

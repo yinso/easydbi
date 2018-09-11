@@ -32,6 +32,7 @@ EasyDBI used to come with Sqlite3 by default. This is now separated into its own
       }
     });
 
+**note**: typescipt will not include files or modules that do not get used. If you are using the `<import * as driver from 'driver'>` syntax you may recieve "error: unknown driver type". To fix this, use the non-ES6 `<require('driver')>`
 
 ## Setup
 

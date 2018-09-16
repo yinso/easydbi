@@ -16,8 +16,9 @@ export class SerializeDriver extends driver.Driver {
     readonly driver : driver.DriverConstructor;
     readonly driverOptions : driver.DriverOptions
     private readonly _inner : driver.Driver;
-    constructor(key : string, options : SerializeDriverOptions) {
+    constructor(key : string, options : driver.DriverOptions) {
         super(key, options)
+        //let derivedOptions = options as SerializeDriverOptions;
         this.outputDir = options.outputDir;
         this.driver = options.driver;
         this.driverOptions = options.driverOptions;

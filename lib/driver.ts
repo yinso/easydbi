@@ -1,21 +1,22 @@
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
 import * as fs from 'fs-extra-promise';
+import { ExplicitAny } from './base';
 
 export interface DriverOptions {
     pool ?: {
         min ?: number;
         max ?: number;
     }
-    [key: string]: any;
+    [key: string]: ExplicitAny;
 }
 
 export interface QueryArgs {
-    [key: string]: any;
+    [key: string]: ExplicitAny;
 }
 
 export interface ResultRecord {
-    [key: string]: any;
+    [key: string]: ExplicitAny;
 }
   
 export type NoResultCallback = (err : Error | null) => void;
@@ -55,7 +56,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
 
     abstract isConnected() : boolean;
 
-    driverName() { return ((<any>this).constructor).name; }
+    driverName() { return ((<ExplicitAny>this).constructor).name; }
 
     loadScript(filePath : string, inTransaction : boolean, cb : NoResultCallback) : void {
         this.loadScriptAsync(filePath, inTransaction)
@@ -65,7 +66,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
 
     query(query : QueryType, cb : ResultSetCallback) : void;
     query(query : QueryType, args :QueryArgs, cb : ResultSetCallback) : void;
-    query(query : QueryType , next : any, last ?: any) : void {
+    query(query : QueryType , next : ExplicitAny, last ?: ExplicitAny) : void {
         let [ args , cb ] = normalize<ResultSetCallback>(next, last);
         this.queryAsync(query, args)
             .then((records) => cb(null, records))
@@ -74,7 +75,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
 
     queryOne(query : QueryType, cb : ResultRecordCallback) : void;
     queryOne(query : QueryType, args :QueryArgs, cb : ResultRecordCallback) : void;
-    queryOne(query : QueryType, next : any, last ?: any) : void {
+    queryOne(query : QueryType, next : ExplicitAny, last ?: ExplicitAny) : void {
         let [ args , cb ] = normalize<ResultRecordCallback>(next, last);
         this.queryOneAsync(query, args)
             .then((record) => cb(null, record))
@@ -83,7 +84,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
 
     exec(query : QueryType, cb : NoResultCallback) : void;
     exec(query : QueryType, args : QueryArgs , cb : NoResultCallback) : void;
-    exec(query : QueryType, next : any, last ?: any) : void {
+    exec(query : QueryType, next : ExplicitAny, last ?: ExplicitAny) : void {
         let [ args , cb ] = normalize<NoResultCallback>(next, last);
         this.execAsync(query, args)
             .then(() => cb(null))
@@ -201,7 +202,7 @@ export abstract class Driver extends EventEmitter implements Allocator {
     static set id(value : number) { this._id = value; }
 }
 
-export function normalize<T>(arg : any, next ?: any) : [ QueryArgs , T ] {
+export function normalize<T>(arg : ExplicitAny, next ?: ExplicitAny) : [ QueryArgs , T ] {
     if (typeof(next) === 'function') {
         return [ arg , next ];
     } else {

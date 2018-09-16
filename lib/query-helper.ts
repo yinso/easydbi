@@ -1,4 +1,5 @@
 import * as driver from './driver';
+import { ExplicitAny } from './base';
 
 export interface ArrayifyOptions {
     key: string | Function;
@@ -10,14 +11,14 @@ let defaultOptions = {
     merge: false
 }
 
-function isFunction(arg : any) : arg is Function {
+function isFunction(arg : ExplicitAny) : arg is Function {
     return typeof(arg) === 'function' || (arg instanceof Function);
 }
 
-export function arrayify(stmt : driver.QueryType, args : driver.QueryArgs, options : ArrayifyOptions = defaultOptions) : [ string, any[] ] {
+export function arrayify(stmt : driver.QueryType, args : driver.QueryArgs, options : ArrayifyOptions = defaultOptions) : [ string, ExplicitAny[] ] {
     let segments = stmt.split(/(\$\w+)/g);
     let outputSegments : string[] = [];
-    let outputArgs : any[] = []
+    let outputArgs : ExplicitAny[] = []
     segments.forEach((seg) => {
         if (seg.match(/^\$/)) {
             let key = seg.substring(1)

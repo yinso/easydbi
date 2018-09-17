@@ -51,4 +51,3 @@ export function escape(arg : string | Date | boolean | number) : string {
         return arg.toString();
     }
 }
-

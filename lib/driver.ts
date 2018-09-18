@@ -159,9 +159,9 @@ export abstract class Driver extends EventEmitter implements Allocator {
     execScriptAsync(filePath : string) : Promise<void> {
         return fs.readFileAsync(filePath, 'utf8')
             .then((data) => {
-                let queries = data.split(/\w*;\w/);
+                let queries = data.replace(/(--).*/g, '').split(/\s*;\s*/);
                 return Promise.each(queries, (query) => {
-                    return this.execAsync(query)
+                    if (query) return this.execAsync(query);
                 })
             })
                 .then(() => {})
@@ -169,12 +169,12 @@ export abstract class Driver extends EventEmitter implements Allocator {
     loadScriptAsync(filePath : string, inTransaction : boolean = true) : Promise<void> {
         return fs.readFileAsync(filePath, 'utf8')
             .then((data) => {
-                let queries = data.split(/\w*;\w/);
+                let queries = data.replace(/(--).*/g, '').split(/\s*;\s*/);
                 if (inTransaction) {
                     return this.beginAsync()
                         .then(() => {
                             return Promise.each(queries, (query) => {
-                                return this.execAsync(query)
+                                if (query) return this.execAsync(query);
                             })
                                 .then(() => {})
                         })

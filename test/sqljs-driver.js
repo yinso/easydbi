@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mocha_typescript_1 = require("mocha-typescript");
 var assert = require("assert");
 var DBI = require("../lib/dbi");
+require('../lib/sqljs-driver');
 var conn;
 DBI.setup('test-sqljs', {
     type: 'sqljs',

@@ -17,7 +17,7 @@
     "test": "./node_modules/.bin/mocha"
   },
   "dependencies": {
-    "bluebird": "^3.3.1",
+    "bluebird": "^3.5.2",
     "debug": "^2.2.0",
     "errorlet": "^0.2.0",
     "generic-pool": "^3.4.2",
@@ -29,7 +29,7 @@
     "sql.js": "^0.5.0"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.2",
+    "@types/bluebird": "^3.5.24",
     "@types/chai": "^4.1.4",
     "@types/fs-extra-promise": "^1.0.7",
     "@types/generic-pool": "^3.1.4",

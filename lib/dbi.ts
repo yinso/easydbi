@@ -1,12 +1,11 @@
 import * as Promise from 'bluebird';
 import * as driver from './driver';
 import * as alloc from './allocator';
-import { ExplicitAny } from './base';
 
 const drivers : {[key: string]: driver.DriverConstructor} = {};
 const pools : {[key: string]: alloc.BaseAllocator} = {};
 
-export function register<T extends driver.DriverConstructor>(type : string, driver : T) {
+export function register(type : string, driver : driver.DriverConstructor) {
     drivers[type] = driver;
 }
 
@@ -75,13 +74,13 @@ export function connect(key : string, cb : driver.ConnectCallback) {
         .catch(cb);
 }
 
-export function load(key: string, module : {[key: string] : ExplicitAny}) {
+export function load(key: string, module : {[key: string] : any}) {
     Object.keys(module).forEach((call) => {
         prepare(key, call, module[call]);
     })
 }
 
-export function prepare(key: string, call : string, options : ExplicitAny) {
+export function prepare(key: string, call : string, options : any) {
     let driver = getPool(key);
     driver.prepare(call, options);
 }

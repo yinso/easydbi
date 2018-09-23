@@ -1,19 +1,18 @@
 /// <reference types="node" />
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
-import { ExplicitAny } from './base';
 export interface DriverOptions {
     pool?: {
         min?: number;
         max?: number;
     };
-    [key: string]: ExplicitAny;
+    [key: string]: any;
 }
 export interface QueryArgs {
-    [key: string]: ExplicitAny;
+    [key: string]: any;
 }
 export interface ResultRecord {
-    [key: string]: ExplicitAny;
+    [key: string]: any;
 }
 export declare type NoResultCallback = (err: Error | null) => void;
 export declare type ResultRecordCallback = (err: Error | null, result?: ResultRecord) => void;
@@ -60,7 +59,7 @@ export declare abstract class Driver extends EventEmitter implements Allocator {
     private static _id;
     static id: number;
 }
-export declare function normalize<T>(arg: ExplicitAny, next?: ExplicitAny): [QueryArgs, T];
+export declare function normalize<T>(arg: any, next?: any): [QueryArgs, T];
 export interface DriverConstructor {
     new (key: string, options: DriverOptions): Driver;
 }

@@ -1,8 +1,7 @@
 import * as Promise from 'bluebird';
 import * as driver from './driver';
 import * as alloc from './allocator';
-import { ExplicitAny } from './base';
-export declare function register<T extends driver.DriverConstructor>(type: string, driver: T): void;
+export declare function register(type: string, driver: driver.DriverConstructor): void;
 export declare function hasType(type: string): driver.DriverConstructor;
 export declare function getType(type: string): driver.DriverConstructor;
 export declare function hasSetup(key: string): boolean;
@@ -20,6 +19,6 @@ export declare function getPool(key: string): alloc.BaseAllocator;
 export declare function connectAsync(key: string): Promise<driver.Driver>;
 export declare function connect(key: string, cb: driver.ConnectCallback): Promise<void>;
 export declare function load(key: string, module: {
-    [key: string]: ExplicitAny;
+    [key: string]: any;
 }): void;
-export declare function prepare(key: string, call: string, options: ExplicitAny): void;
+export declare function prepare(key: string, call: string, options: any): void;

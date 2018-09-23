@@ -13,7 +13,7 @@
     ],
     "sourceMap": true,
     "noImplicitAny": true,
-    "strict": true,
+    "strictNullChecks": true,
     "jsx": "react",
     "baseUrl": ".",
     "paths": {

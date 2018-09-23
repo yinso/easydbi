@@ -1,5 +1,4 @@
 import * as Promise from 'bluebird';
-import { ExplicitAny } from './base';
 import { Driver, DriverOptions, DriverConstructor, ConnectCallback, Allocator } from './driver';
 export declare type PrepareOptions = Function | {
     query: string;
@@ -13,7 +12,7 @@ export declare class BaseAllocator implements Allocator {
     constructor(key: string, driver: DriverConstructor, options: DriverOptions);
     connect(cb: ConnectCallback): void;
     connectAsync(): Promise<Driver>;
-    prepare(call: string, options: ExplicitAny): void;
+    prepare(call: string, options: any): void;
     _prepareQuery(call: string, query: string): void;
     _prepareExec(call: string, query: string): void;
 }

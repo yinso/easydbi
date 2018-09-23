@@ -10,7 +10,7 @@ export declare class SerializeDriver extends driver.Driver {
     readonly driver: driver.DriverConstructor;
     readonly driverOptions: driver.DriverOptions;
     private readonly _inner;
-    constructor(key: string, options: driver.DriverOptions);
+    constructor(key: string, options: SerializeDriverOptions);
     connectAsync(): Promise<SerializeDriver>;
     isConnected(): boolean;
     queryAsync(query: driver.QueryType, args?: driver.QueryArgs): Promise<driver.ResultRecord[]>;

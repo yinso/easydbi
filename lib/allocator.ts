@@ -1,5 +1,4 @@
 import * as Promise from 'bluebird';
-import { ExplicitAny } from './base';
 import { Driver , DriverOptions, DriverConstructor, ConnectCallback, Allocator, NoResultCallback, ResultRecord , normalize , QueryArgs , ResultSetCallback } from './driver';
 import { EventEmitter } from 'events';
 
@@ -34,13 +33,13 @@ export class BaseAllocator implements Allocator {
             .then((conn) => conn.connectAsync())
     }
 
-    prepare (call : string, options : ExplicitAny) {
+    prepare (call : string, options : any) {
         console.log('****** Pool.prepare', call, options)
         if (typeof(options) === 'function') {
             this._Driver.prototype[call] = options;
             this._Driver.prototype[`${call}Async`] =function (args : QueryArgs = {}) : Promise<ResultRecord[]> {
                 return new Promise<ResultRecord[]>((resolve, reject) => {
-                    ((this as ExplicitAny)[call] as Function)(args, (err : Error | null, result ?:ResultRecord[]) => {
+                    ((this as any)[call] as Function)(args, (err : Error | null, result ?:ResultRecord[]) => {
                         if (err) {
                             reject(err)
                         } else {
@@ -50,17 +49,17 @@ export class BaseAllocator implements Allocator {
                 });
             };
 
-        } else if (typeof(options as ExplicitAny).query === 'string') {
+        } else if (typeof(options as any).query === 'string') {
             this._prepareQuery(call, options.query);
-        } else if (typeof(options as ExplicitAny).exec === 'string') {
+        } else if (typeof(options as any).exec === 'string') {
             this._prepareExec(call, options.exec);
         }
     }
 
     _prepareQuery(call : string, query : string) {
         let callAsync = `${call}Async`;
-        let callAsyncProc = function (this: Driver, args : QueryArgs = {}) : Promise<ResultRecord[]> {
-            return this.queryAsync(query, args);
+        let callAsyncProc = function (args : QueryArgs = {}) : Promise<ResultRecord[]> {
+            return (this as Driver).queryAsync(query, args);
         }
         this._Driver.prototype[callAsync] = callAsyncProc;
         this._Driver.prototype[call] = function() {
@@ -73,8 +72,8 @@ export class BaseAllocator implements Allocator {
 
     _prepareExec(call : string, query : string) {
         let callAsync = `${call}Async`;
-        let callAsyncProc = function (this : Driver, args : QueryArgs = {}) : Promise<void> {
-            return this.execAsync(query, args);
+        let callAsyncProc = function (args : QueryArgs = {}) : Promise<void> {
+            return (this as Driver).execAsync(query, args);
         }
         this._Driver.prototype[callAsync] = callAsyncProc;
         this._Driver.prototype[call] = function() {

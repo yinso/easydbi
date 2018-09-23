@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
 import * as fs from 'fs-extra-promise';
-
+import * as util from './util'
 export interface DriverOptions {
     pool ?: {
         min ?: number;
@@ -159,7 +159,8 @@ export abstract class Driver extends EventEmitter implements Allocator {
     execScriptAsync(filePath : string) : Promise<void> {
         return fs.readFileAsync(filePath, 'utf8')
             .then((data) => {
-                let queries = data.replace(/(--).*/g, '').split(/\s*;\s*/);
+                let commentsRemoved = util.removeComments(data)
+                let queries = util.splitToQueries(commentsRemoved)
                 return Promise.each(queries, (query) => {
                     if (query) return this.execAsync(query);
                 })
@@ -169,7 +170,8 @@ export abstract class Driver extends EventEmitter implements Allocator {
     loadScriptAsync(filePath : string, inTransaction : boolean = true) : Promise<void> {
         return fs.readFileAsync(filePath, 'utf8')
             .then((data) => {
-                let queries = data.replace(/(--).*/g, '').split(/\s*;\s*/);
+                let commentsRemoved = util.removeComments(data)
+                let queries = util.splitToQueries(commentsRemoved)
                 if (inTransaction) {
                     return this.beginAsync()
                         .then(() => {

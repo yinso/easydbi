@@ -1,7 +1,9 @@
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
 import * as fs from 'fs-extra-promise';
-import * as util from './util'
+import * as util from './util';
+import { ExplicitAny } from './base';
+
 export interface DriverOptions {
     pool ?: {
         min ?: number;

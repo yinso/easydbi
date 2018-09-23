@@ -29,19 +29,19 @@
     "sql.js": "^0.5.0"
   },
   "devDependencies": {
-    "@types/node": "^10.5.6",
     "@types/bluebird": "^3.5.2",
+    "@types/chai": "^4.1.4",
     "@types/fs-extra-promise": "^1.0.7",
     "@types/generic-pool": "^3.1.4",
     "@types/knex": "0.0.47",
-    "@types/sql.js": "0.0.29",
-    "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
+    "@types/node": "^10.5.6",
+    "@types/sql.js": "0.0.29",
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
     "fs-extra-promise": "^1.0.1",
     "mocha": "^2.5.3",
     "mocha-typescript": "^1.1.17",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.3"
   }
 }

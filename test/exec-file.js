@@ -107,7 +107,13 @@ var standardAsQueries = ['CREATE TABLE  "AGENTS" (\n    "AGENT_CODE" CHAR(6) NOT
 describe("test query array", function () {
     it('should create an array of queries', function () {
         return fs.readFileAsync(standardDb, 'utf8')
-            .then(function (originalData) { return assert.deepEqual(util.splitToQueries(originalData), standardAsQueries); });
+            .then(function (originalData) {
+            var queries = util.splitToQueries(originalData);
+            assert.deepEqual(homogenizeNewline(queries), standardAsQueries);
+        });
     });
 });
+function homogenizeNewline(array) {
+    return array.map(function (query) { return query.replace(/\r\n/g, '\n'); });
+}
 //# sourceMappingURL=exec-file.js.map

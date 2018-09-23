@@ -115,6 +115,13 @@ let standardAsQueries = [ 'CREATE TABLE  "AGENTS" (\n    "AGENT_CODE" CHAR(6) NO
 describe("test query array", () => {
     it('should create an array of queries', () => {
         return fs.readFileAsync(standardDb, 'utf8')
-            .then((originalData) => assert.deepEqual(util.splitToQueries(originalData), standardAsQueries))
+            .then((originalData) => {
+                let queries = util.splitToQueries(originalData)
+                assert.deepEqual(homogenizeNewline(queries), standardAsQueries)
+            })
     })
 })
+
+function homogenizeNewline(array : string[]) : string[] {
+    return array.map(query => query.replace(/\r\n/g, '\n'))
+}

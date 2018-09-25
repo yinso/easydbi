@@ -3,11 +3,19 @@ import * as Promise from 'bluebird';
 import * as fs from 'fs-extra-promise';
 import * as path from 'path';
 import * as DBI from './dbi';
+import { ExplicitAny } from './base';
 
 export interface SerializeDriverOptions extends driver.DriverOptions {
     outputDir: string;
     driver: driver.DriverConstructor;
     driverOptions : driver.DriverOptions;
+}
+
+export function isSerializeDriverOptions(v : ExplicitAny) : v is SerializeDriverOptions {
+    return driver.isDriverOptions(v) &&
+        typeof((v as ExplicitAny).outputDir) === 'string' &&
+        typeof((v as ExplicitAny).driver) === 'function' &&
+        driver.isDriverOptions((v as ExplicitAny).driverOptions);
 }
 
 // strictly speaking I want this to be passed in...
@@ -16,12 +24,16 @@ export class SerializeDriver extends driver.Driver {
     readonly driver : driver.DriverConstructor;
     readonly driverOptions : driver.DriverOptions
     private readonly _inner : driver.Driver;
-    constructor(key : string, options : SerializeDriverOptions) {
+    constructor(key : string, options : driver.DriverOptions) {
         super(key, options)
-        this.outputDir = options.outputDir;
-        this.driver = options.driver;
-        this.driverOptions = options.driverOptions;
-        this._inner = new this.driver(key, this.driverOptions)
+        if (isSerializeDriverOptions(options)) {
+            this.outputDir = options.outputDir;
+            this.driver = options.driver;
+            this.driverOptions = options.driverOptions;
+            this._inner = new this.driver(key, this.driverOptions)
+        } else {
+            throw new Error(`SerializeDriver.ctor:InvalidSerializeDriverOptions`);
+        }
     }
 
     connectAsync() : Promise<SerializeDriver> {

@@ -58,8 +58,8 @@ export class BaseAllocator implements Allocator {
 
     _prepareQuery(call : string, query : string) {
         let callAsync = `${call}Async`;
-        let callAsyncProc = function (args : QueryArgs = {}) : Promise<ResultRecord[]> {
-            return (this as Driver).queryAsync(query, args);
+        let callAsyncProc = function (this : Driver, args : QueryArgs = {}) : Promise<ResultRecord[]> {
+            return this.queryAsync(query, args);
         }
         this._Driver.prototype[callAsync] = callAsyncProc;
         this._Driver.prototype[call] = function() {
@@ -72,8 +72,8 @@ export class BaseAllocator implements Allocator {
 
     _prepareExec(call : string, query : string) {
         let callAsync = `${call}Async`;
-        let callAsyncProc = function (args : QueryArgs = {}) : Promise<void> {
-            return (this as Driver).execAsync(query, args);
+        let callAsyncProc = function (this : Driver, args : QueryArgs = {}) : Promise<void> {
+            return this.execAsync(query, args);
         }
         this._Driver.prototype[callAsync] = callAsyncProc;
         this._Driver.prototype[call] = function() {

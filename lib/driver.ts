@@ -4,12 +4,22 @@ import * as fs from 'fs-extra-promise';
 import * as util from './util';
 import { ExplicitAny } from './base';
 
+export interface PoolOptions {
+    min ?: number;
+    max ?: number;
+}
+
+export function isPoolOptions(v : ExplicitAny) : v is PoolOptions {
+    return !!v && (v.min ? typeof(v.min) === 'number' : true) && (v.max ? typeof(v.max) === 'number' : true);
+}
+
 export interface DriverOptions {
-    pool ?: {
-        min ?: number;
-        max ?: number;
-    }
-    [key: string]: any;
+    pool ?: PoolOptions;
+    [key: string]: ExplicitAny;
+}
+
+export function isDriverOptions(v : ExplicitAny) : v is DriverOptions {
+    return !!v && (v.pool ? isPoolOptions(v.pool) : true);
 }
 
 export interface QueryArgs {

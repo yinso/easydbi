@@ -1,13 +1,17 @@
 /// <reference types="node" />
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
-export interface DriverOptions {
-    pool?: {
-        min?: number;
-        max?: number;
-    };
-    [key: string]: any;
+import { ExplicitAny } from './base';
+export interface PoolOptions {
+    min?: number;
+    max?: number;
 }
+export declare function isPoolOptions(v: ExplicitAny): v is PoolOptions;
+export interface DriverOptions {
+    pool?: PoolOptions;
+    [key: string]: ExplicitAny;
+}
+export declare function isDriverOptions(v: ExplicitAny): v is DriverOptions;
 export interface QueryArgs {
     [key: string]: any;
 }

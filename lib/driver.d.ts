@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import * as Promise from 'bluebird';
 import { EventEmitter } from 'events';
 import { ExplicitAny } from './base';

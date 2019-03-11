@@ -29,12 +29,12 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.4",
-    "@types/mocha": "^5.2.5",
-    "source-map-support": "^0.5.6",
-    "chai": "^3.5.0",
-    "mocha": "^2.5.3",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2",
     "mocha-typescript": "^1.1.17",
+    "source-map-support": "^0.5.10",
     "typescript": "=3.0.3"
   }
 }

@@ -31,10 +31,6 @@ export function hasSetup(key: string) : boolean {
 export interface SetupOptions {
     type: string;
     options: driver.DriverOptions;
-    pool?: {
-        min?: number;
-        max?: number;
-    }
 }
 
 export function setup(key : string, options : SetupOptions) {
@@ -42,7 +38,7 @@ export function setup(key : string, options : SetupOptions) {
         throw new Error(`Duplicatesetup: ${key}`)
     }
     let driver = getType(options.type)
-    if (options.pool) {
+    if (options.options.pool) {
         pools[key] = new alloc.PoolAllocator(key, driver, options.options);
     } else {
         pools[key] = new alloc.BaseAllocator(key, driver, options.options);

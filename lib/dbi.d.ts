@@ -8,10 +8,6 @@ export declare function hasSetup(key: string): boolean;
 export interface SetupOptions {
     type: string;
     options: driver.DriverOptions;
-    pool?: {
-        min?: number;
-        max?: number;
-    };
 }
 export declare function setup(key: string, options: SetupOptions): void;
 export declare function tearDown(key: string): void;

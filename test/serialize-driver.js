@@ -67,12 +67,12 @@ DBI.setup('test-serialize', {
     options: {
         driver: sqljs.SqljsDriver,
         driverOptions: {},
-        outputDir: outputDir
+        outputDir: outputDir,
+        pool: {
+            min: 2,
+            max: 10
+        }
     },
-    pool: {
-        min: 2,
-        max: 10
-    }
 });
 var SerializeDriverTest = /** @class */ (function () {
     function SerializeDriverTest() {
